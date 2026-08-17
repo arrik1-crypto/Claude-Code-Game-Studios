@@ -55,7 +55,7 @@ func _tick_pursue(_delta: float) -> void:
 		return
 
 	play_animation(&"fly")
-	var to_player: Vector2 = p.global_position + Vector2(0, -12) - global_position
+	var to_player: Vector2 = p.global_position + Vector2(0, -28) - global_position
 	var speed: float = float(config.get("moveSpeed", 62.0))
 
 	# Hover offset: a vertical sine on top of the pursuit vector, so the bat

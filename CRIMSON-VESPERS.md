@@ -5,7 +5,7 @@ A gothic action-exploration Metroidvania for mobile, built in Godot 4.6.
 Whip, leap and dissolve into mist through Castle Vhorn, whose locked doors open
 to the abilities you find rather than the keys you carry.
 
-![Gameplay](production/qa/evidence/2026-08-17-vertical-slice/02_run_right.png)
+![Gameplay](production/qa/evidence/2026-08-17-graphics-upgrade/02_run_right.png)
 
 ---
 
@@ -90,8 +90,8 @@ xvfb-run -a godot --path . --rendering-driver opengl3 \
     res://tools/debug/capture_scene.tscn -- --out=/tmp/shots
 ```
 
-All three are green as of the vertical slice: 11 rooms validated, 95 tests /
-1067 assertions passing, 17 screenshots captured.
+All three are green: 11 rooms validated, 109 tests / 1173 assertions passing,
+17 screenshots captured.
 
 ## Regenerating assets
 
@@ -115,7 +115,21 @@ never churns the diff.
 | How is the castle laid out? | `design/levels/room-graph.md` |
 | What should the art look like? | `design/art-bible.md` |
 | Why is the code like this? | `docs/architecture/ADR-*.md` |
+| How does the rendering stack work? | `docs/architecture/ADR-007-rendering-and-lighting.md` |
 | What are the coding rules? | `docs/architecture/control-manifest.md` |
+
+## Rendering
+
+The castle is lit rather than flat: a per-room `CanvasModulate` sets the ambient,
+torches and relics cast flickering point light, and on desktop the player's
+lantern casts real shadows off the masonry. Cost is governed centrally by
+`LightingQuality`, which drops to a no-shadow tier on mobile and hands out lights
+from a per-room budget.
+
+Characters share one effects shader for hit flash, death dissolve and the mist
+form. Rooms that declare `showsSky` get a three-layer parallax castle skyline
+behind them, deliberately dimmer than the playfield so scenery never competes
+with platforms.
 
 ## Credits
 

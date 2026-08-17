@@ -46,6 +46,13 @@ func _enter_phase(phase: Phase) -> void:
 		Phase.ACTIVE:
 			_phase_timer = float(step_cfg.get("active", 0.1))
 			player.begin_whip(float(step_cfg.get("multiplier", 1.0)))
+			# The arc is drawn where the lash actually sweeps, so the visual and
+			# the hitbox agree about the weapon's reach.
+			var reach: float = GameState.weapon_reach()
+			Vfx.whip_smear(
+				player.effect_host(),
+				player.global_position + Vector2(float(player.facing) * reach * 0.6, -18.0),
+				player.facing, _step, reach)
 		Phase.RECOVERY:
 			_phase_timer = float(step_cfg.get("recovery", 0.16))
 			player.end_whip()

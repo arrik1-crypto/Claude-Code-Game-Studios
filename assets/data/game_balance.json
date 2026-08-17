@@ -1,31 +1,31 @@
 {
   "_comment": "Crimson Vespers tuning data. Every gameplay number lives here, never in code. Rationale for each block is in design/gdd/ \u2014 see combat-system.md, progression-and-stats.md and traversal-moveset.md.",
   "movement": {
-    "runSpeed": 118.0,
-    "airControlSpeed": 104.0,
-    "groundAcceleration": 1400.0,
-    "groundFriction": 1600.0,
-    "airAcceleration": 900.0,
-    "airFriction": 320.0,
+    "runSpeed": 150.0,
+    "airControlSpeed": 132.0,
+    "groundAcceleration": 1700.0,
+    "groundFriction": 1900.0,
+    "airAcceleration": 1100.0,
+    "airFriction": 380.0,
     "gravity": 900.0,
-    "maxFallSpeed": 420.0,
-    "jumpVelocity": -330.0,
+    "maxFallSpeed": 520.0,
+    "jumpVelocity": -426.0,
     "jumpCutMultiplier": 0.42,
-    "doubleJumpVelocity": -300.0,
+    "doubleJumpVelocity": -379.0,
     "coyoteTime": 0.1,
     "jumpBufferTime": 0.12,
     "crouchSpeedMultiplier": 0.0,
-    "backdashSpeed": 240.0,
+    "backdashSpeed": 300.0,
     "backdashDuration": 0.22,
     "backdashCooldown": 0.35,
-    "mistDashSpeed": 300.0,
+    "mistDashSpeed": 400.0,
     "mistDashDuration": 0.18,
     "mistDashCooldown": 0.55,
     "hurtLockout": 0.28,
     "invulnerabilityTime": 0.85,
-    "knockbackHorizontal": 150.0,
-    "knockbackVertical": 130.0,
-    "stairSpeed": 62.0
+    "knockbackHorizontal": 180.0,
+    "knockbackVertical": 150.0,
+    "stairSpeed": 80.0
   },
   "player": {
     "startingLevel": 1,
@@ -60,13 +60,13 @@
     "leather_whip": {
       "displayName": "Leather Whip",
       "attack": 4,
-      "reach": 26,
+      "reach": 44,
       "description": "The Valcourt family whip. Unremarkable, and it has never failed."
     },
     "chain_whip": {
       "displayName": "Chain Whip",
       "attack": 9,
-      "reach": 34,
+      "reach": 58,
       "description": "Iron links replace worn leather. Heavier, and it bites deeper."
     }
   },
@@ -147,12 +147,12 @@
       "defense": 3,
       "exp": 12,
       "gold": 6,
-      "moveSpeed": 34.0,
+      "moveSpeed": 44.2,
       "contactDamage": 8,
       "aggroRange": 132.0,
       "attackRange": 116.0,
       "attackCooldown": 1.9,
-      "projectileSpeed": 118.0,
+      "projectileSpeed": 150.0,
       "turnAtLedge": true,
       "drops": [
         {
@@ -177,7 +177,7 @@
       "defense": 1,
       "exp": 9,
       "gold": 3,
-      "moveSpeed": 62.0,
+      "moveSpeed": 74.4,
       "contactDamage": 7,
       "aggroRange": 118.0,
       "swoopSpeed": 132.0,
@@ -202,7 +202,7 @@
       "defense": 6,
       "exp": 18,
       "gold": 10,
-      "moveSpeed": 20.0,
+      "moveSpeed": 25.0,
       "contactDamage": 11,
       "aggroRange": 150.0,
       "turnAtLedge": false,
@@ -229,7 +229,7 @@
       "defense": 0,
       "exp": 5,
       "gold": 2,
-      "moveSpeed": 54.0,
+      "moveSpeed": 67.5,
       "contactDamage": 9,
       "waveAmplitude": 26.0,
       "waveFrequency": 2.9,
@@ -250,7 +250,7 @@
       "defense": 1,
       "exp": 7,
       "gold": 4,
-      "moveSpeed": 62.0,
+      "moveSpeed": 71.3,
       "contactDamage": 6,
       "aggroRange": 140.0,
       "drops": [
@@ -275,12 +275,12 @@
       "exp": 340,
       "gold": 220,
       "contactDamage": 12,
-      "moveSpeed": 42.0,
+      "moveSpeed": 58.0,
       "phases": [
         {
           "name": "measured",
           "hpThreshold": 1.0,
-          "moveSpeed": 42.0,
+          "moveSpeed": 58.0,
           "attackCooldown": 2.1,
           "pattern": [
             "slash",
@@ -291,7 +291,7 @@
         {
           "name": "pressed",
           "hpThreshold": 0.6,
-          "moveSpeed": 58.0,
+          "moveSpeed": 76.0,
           "attackCooldown": 1.5,
           "pattern": [
             "slash",
@@ -303,7 +303,7 @@
         {
           "name": "desperate",
           "hpThreshold": 0.28,
-          "moveSpeed": 74.0,
+          "moveSpeed": 96.0,
           "attackCooldown": 1.0,
           "pattern": [
             "charge",
@@ -318,12 +318,12 @@
         "windup": 0.45,
         "active": 0.18,
         "recovery": 0.5,
-        "reach": 46
+        "reach": 64
       },
       "charge": {
         "damageMultiplier": 1.25,
         "windup": 0.5,
-        "speed": 210.0,
+        "speed": 270.0,
         "duration": 0.9,
         "recovery": 0.7
       },

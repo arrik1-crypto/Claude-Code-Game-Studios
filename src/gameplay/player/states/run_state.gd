@@ -10,6 +10,7 @@ func enter(_payload: Dictionary) -> void:
 func physics_update(delta: float) -> void:
 	player.apply_gravity(delta)
 	player.apply_horizontal_movement(delta, true)
+	player.tick_run_dust(delta)
 
 	if try_attack() or try_dash():
 		return

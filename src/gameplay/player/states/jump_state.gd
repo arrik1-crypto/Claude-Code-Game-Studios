@@ -17,9 +17,11 @@ func enter(payload: Dictionary) -> void:
 		player.consume_double_jump()
 		# The mist flourish makes the second jump legible at a glance.
 		player.spawn_vfx("mist", player.global_position + Vector2(0, -8))
+		Vfx.jump_dust(player.effect_host(), player.global_position + Vector2(0, -6))
 	else:
 		player.velocity.y = Balance.field(player.move_cfg, "jumpVelocity", -268.0)
 		player.clear_coyote_time()
+		Vfx.jump_dust(player.effect_host(), player.feet_position())
 
 	player.play_animation(&"jump")
 	AudioDirector.play_sfx("jump")

@@ -736,6 +736,90 @@ def build_ui() -> dict[str, Canvas]:
     return out
 
 
+def _tower(c: Canvas, x0: int, top: int, width: int, bottom: int, body: str,
+           trim: str, lit_windows: bool) -> None:
+    """Draw one crenellated tower silhouette."""
+    c.rect(x0, top, x0 + width, bottom, body)
+    # Merlons along the top.
+    for m in range(0, width + 1, 8):
+        c.rect(x0 + m, top - 6, x0 + min(m + 4, width), top, body)
+    c.rect(x0, top, x0 + width, top, trim)
+    if not lit_windows:
+        return
+    # Sparse and dim on purpose: a distant window that reads as brightly as a
+    # platform the player can stand on turns the backdrop into visual noise.
+    for i, wy in enumerate(range(top + 18, bottom, 44)):
+        if i % 2:
+            continue
+        c.rect(x0 + 5, wy, x0 + 7, wy + 5, "x")
+
+
+def build_parallax_sky(width: int = 480, height: int = 270) -> Canvas:
+    """Farthest layer: banded night sky and the crimson moon.
+
+    Deliberately not tileable — it is drawn with `mirroring` disabled and a very
+    low scroll scale, so it behaves as a fixed backdrop.
+    """
+    c = Canvas(width, height)
+    bands = ["J", "j", "d", "C", "d", "j"]
+    band_h = height // len(bands) + 1
+    for i, glyph in enumerate(bands):
+        c.rect(0, i * band_h, width - 1, min((i + 1) * band_h - 1, height - 1), glyph)
+
+    moon_x, moon_y = int(width * 0.74), int(height * 0.24)
+    for y in range(height):
+        for x in range(width):
+            d2 = (x - moon_x) ** 2 + (y - moon_y) ** 2
+            if d2 <= 30 * 30:
+                c.rect(x, y, x, y, "R")
+            elif d2 <= 36 * 36:
+                c.rect(x, y, x, y, "r")
+            elif d2 <= 44 * 44:
+                c.rect(x, y, x, y, "q")
+
+    # Sparse stars, placed on a deterministic lattice so regeneration is stable.
+    for i in range(34):
+        sx = (i * 97 + 31) % width
+        sy = (i * 53 + 17) % (height // 2)
+        if (sx - moon_x) ** 2 + (sy - moon_y) ** 2 < 60 * 60:
+            continue
+        c.rect(sx, sy, sx, sy, "n" if i % 3 else "-")
+    return c
+
+
+def build_parallax_far(width: int = 480, height: int = 270) -> Canvas:
+    """Middle layer: distant castle skyline, horizontally tileable.
+
+    The first and last towers are placed so the seam falls in open sky, which is
+    what lets the layer repeat without a visible join.
+    """
+    c = Canvas(width, height)
+    towers = [
+        (14, 150, 30), (58, 118, 26), (100, 162, 34), (150, 96, 30),
+        (200, 138, 26), (244, 88, 34), (300, 142, 30), (348, 112, 26),
+        (392, 158, 34), (444, 130, 24),
+    ]
+    for x0, top, w in towers:
+        _tower(c, x0, top, w, height - 1, "j", "d", True)
+    # Curtain wall tying the towers together along the bottom.
+    c.rect(0, 208, width - 1, height - 1, "j")
+    c.rect(0, 208, width - 1, 209, "d")
+    return c
+
+
+def build_parallax_near(width: int = 480, height: int = 270) -> Canvas:
+    """Nearest layer: dark foreground spires and a fog band."""
+    c = Canvas(width, height)
+    for x0, top, w in ((-6, 176, 34), (86, 196, 28), (196, 168, 36),
+                       (300, 200, 30), (410, 182, 38)):
+        _tower(c, max(0, x0), top, w, height - 1, "J", "j", False)
+    c.rect(0, 236, width - 1, height - 1, "J")
+    # Banded fog, lightest at the top so it reads as depth rather than a wall.
+    for i, y in enumerate(range(220, height, 5)):
+        c.rect(0, y, width - 1, y + 1, "j" if i % 2 else "d")
+    return c
+
+
 def build_title_banner() -> Canvas:
     """Title-screen backdrop: moon, castle silhouette, fog bands."""
     c = Canvas(480, 270)

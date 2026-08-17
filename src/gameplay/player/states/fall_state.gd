@@ -24,6 +24,7 @@ func physics_update(delta: float) -> void:
 
 	if player.is_on_floor():
 		AudioDirector.play_sfx("land", -6.0)
+		Vfx.land_dust(player.effect_host(), player.feet_position(), player.last_fall_speed())
 		if is_zero_approx(player.move_axis()):
 			state_machine.transition_to(&"Idle", {})
 		else:

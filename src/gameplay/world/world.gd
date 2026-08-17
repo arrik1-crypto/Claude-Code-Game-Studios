@@ -15,6 +15,7 @@ const CAMERA_MARGIN: float = 0.0
 
 @onready var room_host: Node2D = $RoomHost
 @onready var camera: Camera2D = $Camera2D
+@onready var backdrop: ParallaxBackdrop = $Backdrop
 
 var player: Player = null
 var current_room: Room = null
@@ -76,6 +77,7 @@ func build_room(room_id: String, door_id: String) -> void:
 	current_room = room
 	_place_player(room, door_id)
 	_apply_camera_limits(room)
+	_apply_backdrop(room)
 
 	AudioDirector.play_music(room.music_track)
 	EventBus.room_entered.emit(room_id)
@@ -93,6 +95,18 @@ func _place_player(room: Room, door_id: String) -> void:
 	# Snap the camera so the new room does not smear past during the fade-in.
 	camera.global_position = player.global_position
 	camera.reset_smoothing()
+
+
+## Show the skyline only in rooms that declare themselves open to the sky.
+##
+## An interior room fills its background with masonry, which would hide the
+## backdrop entirely; drawing it there would be pure cost for no pixels.
+func _apply_backdrop(room: Room) -> void:
+	if backdrop == null:
+		return
+	backdrop.set_active(room.shows_sky)
+	if room.shows_sky and room.lighting != null:
+		backdrop.match_ambient(room.lighting.color)
 
 
 func _apply_camera_limits(room: Room) -> void:

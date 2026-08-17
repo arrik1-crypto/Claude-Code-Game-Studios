@@ -6,8 +6,12 @@ extends PlayerState
 ## horizontal distance, invulnerability frames, and passage through mist gates.
 ## Works on the ground and in the air, and does not consume the double jump.
 
+## Seconds between after-images during the dash.
+const TRAIL_INTERVAL: float = 0.035
+
 var _timer: float = 0.0
 var _direction: int = 1
+var _trail_timer: float = 0.0
 
 
 func enter(_payload: Dictionary) -> void:
@@ -30,7 +34,6 @@ func enter(_payload: Dictionary) -> void:
 
 func exit() -> void:
 	player.set_mist_intangible(false)
-	player.sprite.modulate.a = 1.0
 
 
 func physics_update(delta: float) -> void:
@@ -38,7 +41,12 @@ func physics_update(delta: float) -> void:
 	player.velocity.y = 0.0
 	player.velocity.x = float(_direction) \
 		* Balance.field(player.move_cfg, "mistDashSpeed", 300.0)
-	player.sprite.modulate.a = 0.55
+	# After-images along the dash path, so the traversal reads as a streak
+	# rather than a teleport.
+	_trail_timer -= delta
+	if _trail_timer <= 0.0:
+		_trail_timer = TRAIL_INTERVAL
+		Vfx.mist_trail(player.effect_host(), player.global_position + Vector2(0, -14))
 
 	_timer -= delta
 	if _timer <= 0.0:

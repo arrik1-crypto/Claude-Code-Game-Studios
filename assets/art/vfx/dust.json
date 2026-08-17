@@ -1,0 +1,32 @@
+{
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frameCount": 24,
+  "columns": 8,
+  "animations": {
+    "jump": {
+      "start": 0,
+      "count": 8,
+      "fps": 22.0,
+      "loop": false
+    },
+    "land": {
+      "start": 8,
+      "count": 8,
+      "fps": 24.0,
+      "loop": false
+    },
+    "run": {
+      "start": 8,
+      "count": 6,
+      "fps": 26.0,
+      "loop": false
+    },
+    "impact": {
+      "start": 16,
+      "count": 8,
+      "fps": 26.0,
+      "loop": false
+    }
+  }
+}

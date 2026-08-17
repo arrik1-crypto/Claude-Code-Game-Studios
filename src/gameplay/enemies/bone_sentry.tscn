@@ -6,11 +6,11 @@
 [ext_resource type="Script" path="res://src/gameplay/combat/hitbox.gd" id="4_hitbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_sentry"]
-radius = 6.0
-height = 24.0
+radius = 12.0
+height = 48.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_contact"]
-size = Vector2(14, 24)
+size = Vector2(28, 48)
 
 [node name="BoneSentry" type="CharacterBody2D"]
 collision_layer = 4
@@ -20,11 +20,11 @@ script = ExtResource("1_sentry")
 enemy_id = "bone_sentry"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 shape = SubResource("CapsuleShape2D_sentry")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-offset = Vector2(0, -14)
+offset = Vector2(0, -28)
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("2_health")
@@ -37,7 +37,7 @@ script = ExtResource("3_hurtbox")
 health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 shape = SubResource("CapsuleShape2D_sentry")
 
 [node name="ContactHitbox" type="Area2D" parent="."]
@@ -51,15 +51,15 @@ continuous = true
 retrigger_interval = 0.6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 shape = SubResource("RectangleShape2D_contact")
 
 [node name="FloorProbe" type="RayCast2D" parent="."]
-position = Vector2(10, -6)
-target_position = Vector2(0, 16)
+position = Vector2(18, -12)
+target_position = Vector2(0, 28)
 collision_mask = 1
 
 [node name="WallProbe" type="RayCast2D" parent="."]
-position = Vector2(0, -12)
-target_position = Vector2(12, 0)
+position = Vector2(0, -24)
+target_position = Vector2(20, 0)
 collision_mask = 1

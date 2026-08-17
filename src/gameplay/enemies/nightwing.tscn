@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://src/gameplay/combat/hitbox.gd" id="4_hitbox"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bat"]
-radius = 7.0
+radius = 13.0
 
 [node name="Nightwing" type="CharacterBody2D"]
 collision_layer = 4
@@ -17,11 +17,11 @@ enemy_id = "nightwing"
 hurt_duration = 0.12
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -14)
+position = Vector2(0, -28)
 shape = SubResource("CircleShape2D_bat")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-offset = Vector2(0, -14)
+offset = Vector2(0, -28)
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("2_health")
@@ -34,7 +34,7 @@ script = ExtResource("3_hurtbox")
 health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, -14)
+position = Vector2(0, -28)
 shape = SubResource("CircleShape2D_bat")
 
 [node name="ContactHitbox" type="Area2D" parent="."]
@@ -48,5 +48,5 @@ continuous = true
 retrigger_interval = 0.6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox"]
-position = Vector2(0, -14)
+position = Vector2(0, -28)
 shape = SubResource("CircleShape2D_bat")

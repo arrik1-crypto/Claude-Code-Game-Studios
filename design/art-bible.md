@@ -23,9 +23,9 @@
 |---|---|
 | Reference viewport | 480 × 270 (16:9) |
 | Tile size | 16 × 16 px |
-| Player frame | 40 × 40 px (character ≈ 28 px tall) |
-| Standard enemy frame | 32 × 32 px |
-| Boss frame | 64 × 64 px |
+| Player frame | 80 × 80 px (character 38 × 56 px) |
+| Standard enemy frame | 64 × 64 px (authored at 32, EPX-doubled) |
+| Boss frame | 128 × 128 px (authored at 64, EPX-doubled) |
 | Texture filtering | Nearest, no mipmaps |
 | Stretch mode | `canvas_items`, `expand` |
 | Colour depth | Indexed palette, see §3 |
@@ -72,12 +72,15 @@ Game-ready copies are produced by
 | `dust_effects`, `weapon_smears`, `pink_box_effects` | VFX library (partially wired) |
 | SFX + 3 music tracks | All game audio |
 
-**Hero downscale.** The pack's hero is 80 × 80 with a ~56 px character, authored
-for a larger tile scale. The import downscales 2:1 to 40 × 40 (≈ 28 px character)
-because the level geometry, collision capsules, doorway heights and camera
-framing were all built around a ~28 px protagonist on a 16 px grid. This is a
-deliberate trade: adopting the native size is a level-geometry pass, not an
-import flag.
+**Hero resolution — resolved.** The hero is now imported at **native 80 × 80**,
+giving a 56 px character. That is 20.7% of the 270 px viewport, against 21.4% for
+Alucard in Symphony of the Night — proportionally correct for the genre.
+
+An earlier revision downscaled 2:1 to fit level geometry authored for a 28 px
+protagonist. That was the wrong trade: it made the character half the size the
+genre calls for in order to preserve placeholder geometry. The geometry was
+rebuilt instead (rooms 40 × 18 → 40 × 24, doorways 2 → 4 tiles, jump retuned from
+a 60 px apex to 101 px), and `HERO_SCALE` in the importer should stay at 1.
 
 **Known gaps in the pack's hero sheet.** No dedicated crouch or airborne poses.
 The import substitutes a low sword-guard frame for the crouch and mid-stride run
@@ -89,6 +92,14 @@ replace if the character gets a bespoke animation pass.
 Everything else is generated deterministically by
 `tools/asset-pipeline/generate_assets.py` from hand-authored ASCII glyph grids.
 Re-running produces byte-identical output, so regeneration never churns the diff.
+
+**Bestiary scale — EPX doubling.** The gothic bestiary is hand-authored in ASCII
+at roughly 22 px and exported at 2× using EPX/Scale2x. Beside a 56 px hero, a
+22 px skeleton reads as a different game; but a naive nearest-neighbour 2× turns
+every pixel into a 2 × 2 block, which reads as *lower* resolution next to 16 px
+tiles. EPX interpolates diagonals where neighbouring pixels agree across a
+corner, so curves smooth out while flat areas and hard edges stay exactly as
+authored. Authoring stays at the comfortable small size; the export is crisp.
 
 | Asset | Status |
 |---|---|

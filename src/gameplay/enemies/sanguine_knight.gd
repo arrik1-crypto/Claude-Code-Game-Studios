@@ -160,12 +160,16 @@ func _begin_strike() -> void:
 	var reach: float = float(move.get("reach", 46))
 	var shape := sword_shape.shape as RectangleShape2D
 	if shape != null:
-		shape.size = Vector2(reach, 34.0)
-	sword_shape.position = Vector2(float(facing) * (reach * 0.5 + 10.0), -18.0)
+		shape.size = Vector2(reach, 60.0)
+	sword_shape.position = Vector2(float(facing) * (reach * 0.5 + 16.0), -38.0)
 
 	sword_hitbox.knockback_horizontal = 190.0
 	sword_hitbox.knockback_vertical = 150.0
 	sword_hitbox.activate(_attack_damage(float(move.get("damageMultiplier", 1.0))))
+	Vfx.boss_smear(
+		get_parent(),
+		global_position + Vector2(float(facing) * reach * 0.6, -40.0),
+		facing, reach)
 	EventBus.screen_shake_requested.emit(2.5, 0.15)
 
 
@@ -224,8 +228,8 @@ func _start_charge_run() -> void:
 
 	var shape := sword_shape.shape as RectangleShape2D
 	if shape != null:
-		shape.size = Vector2(40.0, 40.0)
-	sword_shape.position = Vector2(float(_charge_direction) * 24.0, -20.0)
+		shape.size = Vector2(70.0, 76.0)
+	sword_shape.position = Vector2(float(_charge_direction) * 40.0, -42.0)
 
 	sword_hitbox.knockback_horizontal = 220.0
 	sword_hitbox.knockback_vertical = 120.0
@@ -256,7 +260,7 @@ func _do_summon() -> void:
 			host.add_child(bat)
 			if bat is Node2D:
 				var spread: float = float(i) * 28.0 - float(count - 1) * 14.0
-				(bat as Node2D).global_position = global_position + Vector2(spread, -52.0)
+				(bat as Node2D).global_position = global_position + Vector2(spread, -92.0)
 			_summoned.append(bat)
 
 	_state = State.RECOVER
@@ -330,7 +334,9 @@ func _on_damaged(_amount: int, info: DamageInfo) -> void:
 	if is_dying():
 		return
 	AudioDirector.play_sfx("boss_hit", -2.0)
-	_spawn_effect("hit_spark", info.impact_position if info != null else global_position)
+	var impact_at: Vector2 = info.impact_position if info != null else global_position
+	Vfx.hit_spark(get_parent(), impact_at)
+	Vfx.impact(get_parent(), impact_at, Vfx.TINT_STEEL)
 	_flash()
 
 

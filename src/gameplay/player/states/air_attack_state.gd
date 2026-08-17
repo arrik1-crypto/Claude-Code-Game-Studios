@@ -28,6 +28,11 @@ func _enter_phase(phase: Phase) -> void:
 		Phase.ACTIVE:
 			_phase_timer = float(_cfg.get("active", 0.12))
 			player.begin_whip(float(_cfg.get("multiplier", 1.1)))
+			var reach: float = GameState.weapon_reach()
+			Vfx.whip_smear(
+				player.effect_host(),
+				player.global_position + Vector2(float(player.facing) * reach * 0.6, -18.0),
+				player.facing, 0, reach)
 		Phase.RECOVERY:
 			_phase_timer = float(_cfg.get("recovery", 0.14))
 			player.end_whip()

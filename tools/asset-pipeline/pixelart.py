@@ -128,6 +128,47 @@ class Canvas:
                     out.px[y][x] = col
         return out
 
+    def scaled_2x(self) -> "Canvas":
+        """Double the resolution using EPX / Scale2x.
+
+        A naive 2x nearest-neighbour blowup makes every pixel a 2x2 block, which
+        reads as a *lower*-resolution sprite sitting next to 16px tiles. EPX
+        instead interpolates diagonals: where a pixel's neighbours agree across a
+        corner, that corner is filled with the neighbour's colour. Curves and
+        diagonal edges come out smooth while flat areas and hard edges stay
+        exactly as authored.
+
+        This is what lets the hand-authored 22px bestiary stand next to a 56px
+        imported hero without looking like it came from a different game.
+        """
+        out = Canvas(self.w * 2, self.h * 2)
+        for y in range(self.h):
+            for x in range(self.w):
+                p = self.px[y][x]
+                a = self.get(x, y - 1)   # up
+                b = self.get(x + 1, y)   # right
+                c = self.get(x - 1, y)   # left
+                d = self.get(x, y + 1)   # down
+
+                e0 = e1 = e2 = e3 = p
+                # Only round a corner when the two neighbours forming it agree
+                # and the opposing pair does not — that is what distinguishes a
+                # diagonal edge from a flat run.
+                if c == a and c != d and a != b:
+                    e0 = a
+                if a == b and a != c and b != d:
+                    e1 = b
+                if d == c and d != b and c != a:
+                    e2 = c
+                if b == d and b != a and d != c:
+                    e3 = d
+
+                out.px[y * 2][x * 2] = e0
+                out.px[y * 2][x * 2 + 1] = e1
+                out.px[y * 2 + 1][x * 2] = e2
+                out.px[y * 2 + 1][x * 2 + 1] = e3
+        return out
+
     def shifted(self, dx: int, dy: int) -> "Canvas":
         out = Canvas(self.w, self.h)
         out.blit(self, dx, dy)
@@ -197,6 +238,19 @@ class Atlas:
             "animations": self.anims,
         }
         json_path.write_text(json.dumps(manifest, indent=2) + "\n")
+
+
+def scale_atlas_2x(atlas: Atlas) -> Atlas:
+    """Return a copy of an atlas with every frame EPX-doubled.
+
+    Animation ranges, fps and loop flags are preserved; only the pixel
+    dimensions change, so the manifest and the engine loader need no special
+    handling.
+    """
+    scaled = Atlas(atlas.fw * 2, atlas.fh * 2)
+    scaled.frames = [f.scaled_2x() for f in atlas.frames]
+    scaled.anims = {name: dict(info) for name, info in atlas.anims.items()}
+    return scaled
 
 
 def save_png(canvas: Canvas, path: Path) -> None:

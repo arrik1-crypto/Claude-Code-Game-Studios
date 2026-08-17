@@ -58,7 +58,7 @@ always finishes its own frame before being replaced.
 
 ### 3.3 Crouching and drop-through
 
-- Crouching halves the hurtbox height, letting Medusa Heads pass overhead.
+- Crouching roughly halves the hurtbox (44 px → 24 px), letting Medusa Heads pass overhead.
 - The body collider is deliberately **not** resized: changing it mid-frame pops
   the character through floors.
 - Crouch + jump on a one-way platform drops through it. The player's one-way
@@ -109,17 +109,22 @@ backdash_velocity.x     = −facing × backdashSpeed × ease(t_remaining / durat
 mist_velocity           = (direction × mistDashSpeed, 0)
 ```
 
-With the shipped values (`gravity 900`, `jumpVelocity −330`, `doubleJumpVelocity −300`):
+With the shipped values (`gravity 900`, `jumpVelocity −426`, `doubleJumpVelocity −379`):
 
-| Capability | Height | In 16 px tiles |
-|---|---|---|
-| Single jump | 60.5 px | ~3.8 |
-| Twin Step total | 110.5 px | ~6.9 |
+| Capability | Height | In 16 px tiles | In body heights |
+|---|---|---|---|
+| Single jump | 101 px | ~6.3 | 1.8 |
+| Twin Step total | 181 px | ~11.3 | 3.2 |
 
-**This is the contract the level design depends on.** Ledges at ≤ 48 px are open
-to everyone; the 80 px climb in the Entrance Hall is the Twin Step gate. Both
-bounds are asserted in `data_balance_test.gd`, so re-tuning the jump without
-re-checking the level design fails CI.
+**This is the contract the level design depends on.** Ledges at ≤ 96 px are open
+to everyone; the **128 px** climb in the Entrance Hall is the Twin Step gate.
+
+All of it is asserted in `data_balance_test.gd` — that a single jump fails the
+gate, that a double clears it, that a single still clears every ungated ledge,
+that the jump is proportional to the 56 px character, and that both sides of the
+gate keep at least 20 px of margin so a small tuning nudge cannot flip it. The
+room validator independently checks the gate room declares the same number.
+Re-tuning the jump without re-checking the level design therefore fails CI twice.
 
 ## 5. Edge Cases
 

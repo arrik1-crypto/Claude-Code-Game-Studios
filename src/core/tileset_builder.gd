@@ -20,6 +20,9 @@ const PHYSICS_LAYER_WORLD: int = 0
 ## Physics layer index used for one-way platforms.
 const PHYSICS_LAYER_ONE_WAY: int = 1
 
+## Occlusion layer index used for shadow casting from solid tiles.
+const OCCLUSION_LAYER: int = 0
+
 ## Custom data layer name recording each tile's role, so gameplay code can ask
 ## "is this a hazard?" without hardcoding atlas coordinates.
 const DATA_LAYER_ROLE: String = "role"
@@ -65,6 +68,12 @@ static func build() -> TileSet:
 	tileset.set_custom_data_layer_name(0, DATA_LAYER_ROLE)
 	tileset.set_custom_data_layer_type(0, TYPE_STRING)
 
+	# Occlusion layer so solid masonry casts shadows from the player's lantern.
+	# Building it is nearly free; it only costs anything when a shadow-casting
+	# light exists, which is gated to the highest quality tier.
+	tileset.add_occlusion_layer(-1)
+	tileset.set_occlusion_layer_light_mask(OCCLUSION_LAYER, 1)
+
 	var source: TileSetAtlasSource = TileSetAtlasSource.new()
 	source.texture = texture
 	source.texture_region_size = Vector2i(tile_size, tile_size)
@@ -101,6 +110,11 @@ static func build() -> TileSet:
 			"solid", "hazard":
 				data.add_collision_polygon(PHYSICS_LAYER_WORLD)
 				data.set_collision_polygon_points(PHYSICS_LAYER_WORLD, 0, full_square)
+				# Only solid masonry blocks light. Platforms and scenery do not,
+				# so a plank never casts a shadow across the wall behind it.
+				var occluder := OccluderPolygon2D.new()
+				occluder.polygon = full_square
+				data.set_occluder(OCCLUSION_LAYER, occluder)
 			"oneWay":
 				data.add_collision_polygon(PHYSICS_LAYER_ONE_WAY)
 				data.set_collision_polygon_points(PHYSICS_LAYER_ONE_WAY, 0, platform_top)

@@ -11,7 +11,7 @@
   "bgFill": "bg_dark",
   "spawn": {
     "x": 4,
-    "y": 14
+    "y": 20
   },
   "_design_note": "Boss arena. Flat and closed on purpose: the Sanguine Knight's charge needs walls to slam into, and platforms would let the player trivialise the fight from above. Two low planks give just enough vertical play to dodge the sweep.",
   "legend": {
@@ -31,6 +31,12 @@
   "fg": [
     "########################################",
     "########################################",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
     "##..................w.................##",
     "##....................................##",
     "##....u.......................u.......##",
@@ -40,8 +46,8 @@
     "##....................................##",
     "##.....====..................====.....##",
     "##....................................##",
-    "##....................................##",
-    "##....................................##",
+    "#.....................................##",
+    "#.....................................##",
     "........................................",
     "........................................",
     "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
@@ -52,11 +58,11 @@
     {
       "id": "west",
       "x": 1,
-      "y": 14,
+      "y": 20,
       "to": "boss_approach",
       "toDoor": "east",
       "dir": 1,
-      "height": 2
+      "height": 4
     }
   ],
   "entities": [
@@ -65,35 +71,36 @@
       "prop": "torch",
       "light": true,
       "x": 6,
-      "y": 5
+      "y": 11
     },
     {
       "type": "prop",
       "prop": "torch",
       "light": true,
       "x": 33,
-      "y": 5
+      "y": 11
     },
     {
       "type": "prop",
       "prop": "candle",
       "x": 20,
-      "y": 6
+      "y": 12
     },
     {
       "type": "sanguine_knight",
       "x": 30,
-      "y": 14,
+      "y": 20,
       "skipIfFlag": "boss_sanguine_knight_defeated"
     },
     {
       "type": "relic",
       "x": 20,
-      "y": 14,
+      "y": 20,
       "relicType": "weapon",
       "relicId": "chain_whip",
       "displayName": "Chain Whip",
       "flag": "relic_chain_whip_taken"
     }
-  ]
+  ],
+  "ambient": "dark"
 }

@@ -12,6 +12,10 @@ extends Area2D
 
 const PROP_SHEET: String = "res://assets/art/props/props.png"
 
+## Hearts are the most-seen pickup in the game, so they use the pack's
+## ten-frame spin rather than the two-frame generated bob.
+const HEART_SHEET: String = "res://assets/art/props/heart_pickup.png"
+
 ## Seconds before an uncollected pickup despawns. Zero means it never expires;
 ## placed pickups (as opposed to drops) use that.
 @export var lifetime: float = 9.0
@@ -49,6 +53,13 @@ func configure(id: String) -> void:
 	if _config.is_empty():
 		push_error("Pickup: no balance entry for pickups.%s" % id)
 
+	if id == "heart" or id == "heart_large":
+		if SpriteSheetLoader.apply(sprite, HEART_SHEET, "spin"):
+			# Large hearts are the same art, scaled and slightly gilded.
+			if id == "heart_large":
+				sprite.scale = Vector2(1.45, 1.45)
+				sprite.modulate = Color(1.0, 0.86, 0.6)
+			return
 	if SpriteSheetLoader.apply(sprite, PROP_SHEET):
 		var anim: String = _animation_for(id)
 		if sprite.sprite_frames.has_animation(anim):

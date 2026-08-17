@@ -8,12 +8,13 @@
     "w": 1,
     "h": 1
   },
+  "_gateClimbPx": 128,
   "bgFill": "bg_brick",
   "spawn": {
     "x": 4,
-    "y": 14
+    "y": 20
   },
-  "_design_note": "The hub. The upper ledge at row 4 sits 80px above the row-9 platform \u2014 out of single-jump range (60px) and inside double-jump range (110px), so it is the Twin Step gate. See design/levels/room-graph.md.",
+  "_design_note": "The hub, rebuilt as a four-level hall for the full-size character. Floor surface row 21; a solid dais at row 18 (+48px) the player walks over rather than under; ledge 2 at row 14 (+64px above the dais) is the highest surface reachable without a relic. The gate ledge at row 6 sits 128px above ledge 2 \u2014 beyond the 101px single jump, inside the 181px double jump \u2014 so it is the Twin Step gate, and it runs east to the upper_east door. Rows 8-13 are kept free of every standable tile so the climb cannot be chained. See design/levels/room-graph.md.",
   "legend": {
     "#": "brick_solid",
     "T": "brick_top",
@@ -31,19 +32,25 @@
   "fg": [
     "########################################",
     "########################################",
-    "##.....w..........w.....................",
+    "##....w......w......w......w............",
+    "##.......u..............u...............",
     "##......................................",
-    "##......................TTTTTTTTTTTTTTTT",
-    "##......................################",
-    "##...........u........................##",
+    "##......................................",
+    "##..............................TTTTTTTT",
+    "##..............................########",
     "##....................................##",
     "##....................................##",
-    "##..............TTTT..................##",
-    "##..............####..................##",
     "##....................................##",
-    "##......TTTT..........................##",
-    "..........####..........................",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##..................TTTTTTTTTTT.......##",
+    "##..................###########.......##",
+    "##....................................##",
     "........................................",
+    "........TTTTTTTTT.......................",
+    "........#########.......................",
+    ".....a..#########.................a.....",
     "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
     "########################################",
     "########################################"
@@ -52,29 +59,29 @@
     {
       "id": "west",
       "x": 1,
-      "y": 14,
+      "y": 20,
       "to": "outer_ward_gate",
       "toDoor": "east",
       "dir": 1,
-      "height": 2
+      "height": 4
     },
     {
       "id": "east",
       "x": 38,
-      "y": 14,
+      "y": 20,
       "to": "west_corridor",
       "toDoor": "west",
       "dir": -1,
-      "height": 2
+      "height": 4
     },
     {
       "id": "upper_east",
       "x": 38,
-      "y": 3,
+      "y": 5,
       "to": "clock_stair",
       "toDoor": "west",
       "dir": -1,
-      "height": 2
+      "height": 4
     }
   ],
   "entities": [
@@ -82,37 +89,37 @@
       "type": "prop",
       "prop": "torch",
       "light": true,
-      "x": 5,
-      "y": 7
+      "x": 3,
+      "y": 17
     },
     {
       "type": "prop",
       "prop": "torch",
       "light": true,
-      "x": 33,
-      "y": 3
+      "x": 34,
+      "y": 4
     },
     {
       "type": "prop",
       "prop": "candle",
-      "x": 19,
-      "y": 8
+      "x": 26,
+      "y": 13
     },
     {
       "type": "bone_sentry",
       "x": 24,
-      "y": 14
+      "y": 20
     },
     {
       "type": "nightwing",
-      "x": 18,
-      "y": 6
+      "x": 17,
+      "y": 10
     },
     {
       "type": "pickup",
       "item": "heart",
-      "x": 30,
-      "y": 3
+      "x": 35,
+      "y": 5
     }
   ]
 }

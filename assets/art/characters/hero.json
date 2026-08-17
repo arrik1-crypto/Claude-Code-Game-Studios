@@ -1,6 +1,6 @@
 {
-  "frameWidth": 40,
-  "frameHeight": 40,
+  "frameWidth": 80,
+  "frameHeight": 80,
   "frameCount": 64,
   "columns": 16,
   "animations": {

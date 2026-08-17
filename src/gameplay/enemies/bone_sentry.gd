@@ -88,7 +88,7 @@ func _can_see_player() -> bool:
 	var delta: Vector2 = p.global_position - global_position
 	if absf(delta.x) > float(config.get("attackRange", 116.0)):
 		return false
-	if absf(delta.y) > 40.0:
+	if absf(delta.y) > 64.0:
 		return false
 	return signf(delta.x) == float(facing)
 
@@ -117,7 +117,7 @@ func _throw_bone() -> void:
 			"sprite_animation": "bone",
 			"damage": int(config.get("attack", 8)),
 			"direction": facing,
-			"origin": global_position + Vector2(float(facing) * 10.0, -18.0),
+			"origin": global_position + Vector2(float(facing) * 18.0, -36.0),
 			"attacker": self,
 			"source": DamageInfo.Source.CONTACT,
 			"target_layer": 2,  # "player"

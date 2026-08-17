@@ -1,12 +1,15 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/gameplay/world/world.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="2_hud"]
 [ext_resource type="PackedScene" path="res://src/ui/touch/touch_controls.tscn" id="3_touch"]
 [ext_resource type="PackedScene" path="res://src/ui/screens/pause_menu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" path="res://src/gameplay/world/parallax_backdrop.tscn" id="5_backdrop"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_world")
+
+[node name="Backdrop" parent="." instance=ExtResource("5_backdrop")]
 
 [node name="RoomHost" type="Node2D" parent="."]
 

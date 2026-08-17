@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sprites_enemies  # noqa: E402
 import sprites_player  # noqa: E402
 import sprites_world  # noqa: E402
-from pixelart import save_png  # noqa: E402
+from pixelart import save_png, scale_atlas_2x  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ART = REPO_ROOT / "assets" / "art"
@@ -40,12 +40,17 @@ def generate_characters() -> None:
     player.save(ART / "characters" / "player.png", ART / "characters" / "player.json")
     _report(ART / "characters" / "player.png")
 
+    # The bestiary is authored at half scale and EPX-doubled on export. The
+    # imported hero is 56px tall; a 22px skeleton beside it reads as a different
+    # game. Doubling with edge interpolation (rather than nearest-neighbour)
+    # keeps the art crisp at 16px-tile resolution instead of turning every pixel
+    # into a 2x2 block. See design/art-bible.md 4.2.
     bestiary = {
-        "bone_sentry": sprites_enemies.build_bone_sentry(),
-        "nightwing": sprites_enemies.build_nightwing(),
-        "gravewalker": sprites_enemies.build_gravewalker(),
-        "medusa_head": sprites_enemies.build_medusa_head(),
-        "sanguine_knight": sprites_enemies.build_sanguine_knight(),
+        "bone_sentry": scale_atlas_2x(sprites_enemies.build_bone_sentry()),
+        "nightwing": scale_atlas_2x(sprites_enemies.build_nightwing()),
+        "gravewalker": scale_atlas_2x(sprites_enemies.build_gravewalker()),
+        "medusa_head": scale_atlas_2x(sprites_enemies.build_medusa_head()),
+        "sanguine_knight": scale_atlas_2x(sprites_enemies.build_sanguine_knight()),
     }
     for name, atlas in bestiary.items():
         atlas.save(ART / "characters" / f"{name}.png", ART / "characters" / f"{name}.json")
@@ -89,6 +94,15 @@ def generate_world() -> None:
     vfx = sprites_world.build_vfx()
     vfx.save(ART / "vfx" / "vfx.png", ART / "vfx" / "vfx.json")
     _report(ART / "vfx" / "vfx.png")
+
+    for name, builder in (
+        ("sky", sprites_world.build_parallax_sky),
+        ("far", sprites_world.build_parallax_far),
+        ("near", sprites_world.build_parallax_near),
+    ):
+        path = ART / "parallax" / f"{name}.png"
+        save_png(builder(), path)
+        _report(path)
 
 
 def generate_ui() -> None:

@@ -1,0 +1,14 @@
+{
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frameCount": 10,
+  "columns": 10,
+  "animations": {
+    "spin": {
+      "start": 0,
+      "count": 10,
+      "fps": 12.0,
+      "loop": true
+    }
+  }
+}

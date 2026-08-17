@@ -51,6 +51,7 @@ func _ready() -> void:
 	var sheet: String = sprite_sheet_path()
 	if not SpriteSheetLoader.apply(sprite, sheet, "idle"):
 		push_error("%s: could not load sprite sheet %s" % [name, sheet])
+	SpriteFx.attach(sprite)
 
 	health.setup(int(config.get("maxHp", 10)))
 	health.damaged.connect(_on_damaged)
@@ -193,7 +194,9 @@ func _on_damaged(_amount: int, info: DamageInfo) -> void:
 		return
 
 	AudioDirector.play_sfx("enemy_hit", -3.0)
-	_spawn_effect("hit_spark", info.impact_position if info != null else global_position)
+	var impact_at: Vector2 = info.impact_position if info != null else global_position
+	Vfx.hit_spark(get_parent(), impact_at)
+	Vfx.impact(get_parent(), impact_at)
 	_flash()
 
 	if info != null and info.knockback_horizontal > 0.0:
@@ -213,10 +216,10 @@ func knockback_resistance() -> float:
 	return 1.0
 
 
+## Flash the whole silhouette, not just a brightened tint — a dark enemy
+## modulated towards white barely reads as hit at this sprite size.
 func _flash() -> void:
-	sprite.modulate = Color(2.2, 2.2, 2.2, 1.0)
-	var tween: Tween = create_tween()
-	tween.tween_property(sprite, "modulate", Color.WHITE, 0.14)
+	SpriteFx.flash(sprite)
 
 
 func _on_died() -> void:
@@ -231,7 +234,10 @@ func _on_died() -> void:
 
 	_award_rewards()
 	_spawn_drops()
-	_spawn_effect("soul", global_position + Vector2(0, -10))
+	Vfx.soul(get_parent(), global_position + Vector2(0, -10))
+	# Burn the corpse away over its lingering time rather than letting it pop
+	# out of existence.
+	SpriteFx.dissolve(sprite, death_lingering_time())
 
 	await get_tree().create_timer(death_lingering_time()).timeout
 	if is_instance_valid(self):

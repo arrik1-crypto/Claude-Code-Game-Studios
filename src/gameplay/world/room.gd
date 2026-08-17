@@ -50,6 +50,16 @@ var solid: TileMapLayer
 var platforms: TileMapLayer
 var entities: Node2D
 
+## Ambient darkness for this room. Without it, every PointLight2D is a no-op.
+var lighting: RoomLighting
+
+## True when this room is open to the sky, so the parallax skyline is drawn
+## behind it. Interior rooms fill their background with masonry and hide it.
+var shows_sky: bool = false
+
+## Lights created so far in this room, against [method LightingQuality.max_lights].
+var _light_budget_used: int = 0
+
 var _doors: Dictionary = {}
 var _tile_size: int = 16
 var _data: Dictionary = {}
@@ -91,6 +101,10 @@ func _create_layers() -> void:
 	entities.name = "Entities"
 	add_child(entities)
 
+	lighting = RoomLighting.new()
+	lighting.name = "Lighting"
+	add_child(lighting)
+
 
 ## Load and construct a room. Returns false if the data is missing or invalid.
 func build(id: String) -> bool:
@@ -104,6 +118,9 @@ func build(id: String) -> bool:
 
 	display_name = String(_data.get("name", id))
 	music_track = String(_data.get("music", "explore"))
+	_light_budget_used = 0
+	lighting.apply_preset(String(_data.get("ambient", "default")))
+	shows_sky = bool(_data.get("showsSky", false))
 
 	var map_info: Dictionary = _data.get("map", {}) as Dictionary
 	map_rect = Rect2i(
@@ -285,10 +302,23 @@ func _configure_entity(node: Node, type: String, spec: Dictionary) -> void:
 			_resize_mist_gate(node, height)
 		"prop":
 			node.set("prop_animation", String(spec.get("prop", "torch")))
-			node.set("emits_light", bool(spec.get("light", false)))
+			# Lights are granted from a per-room budget. A torch past the cap is
+			# still placed — it just does not light, so the room stays dressed
+			# while the fill-rate cost stays bounded on mobile.
+			node.set("emits_light", bool(spec.get("light", false)) and _claim_light())
 		"sanguine_knight":
 			# Give the boss the room rectangle so its charge knows where to stop.
 			node.call_deferred("set_arena_bounds", bounds)
+
+
+## Take one light from the room's budget. Returns false once it is spent.
+func _claim_light() -> bool:
+	if not LightingQuality.lights_enabled():
+		return false
+	if _light_budget_used >= LightingQuality.max_lights():
+		return false
+	_light_budget_used += 1
+	return true
 
 
 func _resize_mist_gate(node: Node, height: float) -> void:

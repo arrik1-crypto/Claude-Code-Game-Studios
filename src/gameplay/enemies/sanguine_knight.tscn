@@ -6,14 +6,14 @@
 [ext_resource type="Script" path="res://src/gameplay/combat/hitbox.gd" id="4_hitbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_knight"]
-radius = 11.0
-height = 42.0
+radius = 20.0
+height = 84.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_contact"]
-size = Vector2(26, 42)
+size = Vector2(48, 84)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sword"]
-size = Vector2(46, 34)
+size = Vector2(80, 60)
 
 [node name="SanguineKnight" type="CharacterBody2D" groups=["boss"]]
 collision_layer = 4
@@ -25,11 +25,11 @@ stat_section = "bosses"
 hurt_duration = 0.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -21)
+position = Vector2(0, -42)
 shape = SubResource("CapsuleShape2D_knight")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-offset = Vector2(0, -30)
+offset = Vector2(0, -62)
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("2_health")
@@ -42,7 +42,7 @@ script = ExtResource("3_hurtbox")
 health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(0, -21)
+position = Vector2(0, -42)
 shape = SubResource("CapsuleShape2D_knight")
 
 [node name="ContactHitbox" type="Area2D" parent="."]
@@ -56,7 +56,7 @@ continuous = true
 retrigger_interval = 0.8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox"]
-position = Vector2(0, -21)
+position = Vector2(0, -42)
 shape = SubResource("RectangleShape2D_contact")
 
 [node name="SwordHitbox" type="Area2D" parent="."]
@@ -68,5 +68,5 @@ knockback_horizontal = 190.0
 knockback_vertical = 150.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SwordHitbox"]
-position = Vector2(33, -18)
+position = Vector2(58, -34)
 shape = SubResource("RectangleShape2D_sword")

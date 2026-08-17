@@ -29,10 +29,14 @@ enum RelicType {
 ## World flag recording that this relic has been taken. Must be unique.
 @export var flag: String = ""
 
-@onready var sprite: AnimatedSprite2D = $Sprite
-@onready var light: PointLight2D = $Light
+## Cool magical glow marking an uncollected relic.
+const RELIC_LIGHT_COLOR: Color = Color(0.62, 0.86, 1.0)
 
+@onready var sprite: AnimatedSprite2D = $Sprite
+
+var light: PointLight2D = null
 var _taken: bool = false
+var _pulse: float = 0.0
 
 
 func _ready() -> void:
@@ -43,6 +47,13 @@ func _ready() -> void:
 
 	if SpriteSheetLoader.apply(sprite, PROP_SHEET, "relic"):
 		sprite.play("relic")
+
+	# An uncollected relic is a landmark the player should notice from across a
+	# dark room, so it always gets a light regardless of the room's budget.
+	light = LightingQuality.make_light(RELIC_LIGHT_COLOR, 1.15, 2.2)
+	if light != null:
+		light.position = Vector2(0, -14)
+		add_child(light)
 
 	if GameState.get_flag(flag):
 		_show_as_taken()
@@ -55,8 +66,20 @@ func _show_as_taken() -> void:
 	sprite.frame = 0
 	sprite.stop()
 	sprite.modulate = Color(0.55, 0.55, 0.62, 1.0)
-	light.enabled = false
+	if light != null:
+		light.queue_free()
+		light = null
+	set_process(false)
 	monitoring = false
+
+
+## Slow breathing pulse on the relic glow, so it reads as alive rather than
+## as a static lamp.
+func _process(delta: float) -> void:
+	if light == null:
+		return
+	_pulse += delta * 1.7
+	light.energy = 1.15 + sin(_pulse) * 0.28
 
 
 func _on_body_entered(body: Node2D) -> void:

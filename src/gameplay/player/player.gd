@@ -10,9 +10,9 @@ extends CharacterBody2D
 ## All tuning comes from `assets/data/balance.json` via the [Balance] autoload —
 ## see design/gdd/traversal-moveset.md for what each number is for.
 
-## Imported from the Metroidvania asset pack and downscaled 2:1 by
-## tools/asset-pipeline/import_pack_assets.py. Frames are 40x40 in a 16-column
-## grid; the character's feet sit on the last row of the frame.
+## Imported at native resolution from the Metroidvania asset pack by
+## tools/asset-pipeline/import_pack_assets.py. Frames are 80x80 in a 16-column
+## grid; the 38x56 character's feet sit on the last row of the frame.
 const SPRITE_SHEET: String = "res://assets/art/characters/hero.png"
 const PROJECTILE_SCENE: String = "res://src/gameplay/combat/projectile.tscn"
 const VFX_SCENE: String = "res://src/gameplay/vfx/effect.tscn"
@@ -28,8 +28,21 @@ const MIST_GATE_GROUP: StringName = &"mist_gates"
 ## Seconds of ignoring one-way platforms after a deliberate drop-through.
 const DROP_THROUGH_TIME: float = 0.28
 
-const STAND_HURTBOX_HEIGHT: float = 22.0
-const CROUCH_HURTBOX_HEIGHT: float = 12.0
+## Hurtbox heights for a 56px-tall character. Crouching roughly halves it so
+## Medusa Heads pass over — see design/gdd/traversal-moveset.md 3.3.
+const STAND_HURTBOX_HEIGHT: float = 44.0
+const CROUCH_HURTBOX_HEIGHT: float = 24.0
+
+## The whip sweeps at chest height and is tall enough to clip a crouching enemy
+## without reaching anything directly overhead.
+const WHIP_HITBOX_HEIGHT: float = 26.0
+const WHIP_HITBOX_CENTRE_Y: float = -26.0
+
+## Personal light. Cool and dim — it reveals the player's footing without
+## competing with the warm torchlight that marks the room's landmarks.
+const LANTERN_COLOR: Color = Color(0.74, 0.80, 1.0)
+const LANTERN_ENERGY: float = 0.85
+const LANTERN_SCALE: float = 3.4
 
 ## Emitted when the player finishes dying, after the death animation.
 signal death_finished()
@@ -63,12 +76,19 @@ var _active_projectiles: Dictionary = {}
 var _dead: bool = false
 var _control_enabled: bool = true
 
+## Downward speed on the last airborne frame. Sampled before `move_and_slide`
+## zeroes it on contact, so the landing effect can scale with the impact.
+var _last_fall_speed: float = 0.0
+## Distance run since the last footfall puff.
+var _run_dust_accumulator: float = 0.0
+
 
 func _ready() -> void:
 	move_cfg = Balance.section("movement")
 
 	if not SpriteSheetLoader.apply(sprite, SPRITE_SHEET, "idle"):
 		push_error("Player: could not load sprite sheet %s" % SPRITE_SHEET)
+	SpriteFx.attach(sprite)
 
 	health.setup(GameState.max_hp, GameState.current_hp)
 	health.changed.connect(_on_health_changed)
@@ -85,6 +105,7 @@ func _ready() -> void:
 	whip_hitbox.attacker = self
 	whip_hitbox.deactivate()
 	_position_whip()
+	_add_lantern()
 
 
 func _physics_process(delta: float) -> void:
@@ -93,6 +114,9 @@ func _physics_process(delta: float) -> void:
 
 	if _control_enabled:
 		state_machine.physics_update(delta)
+
+	if not is_on_floor():
+		_last_fall_speed = maxf(0.0, velocity.y)
 
 	move_and_slide()
 
@@ -126,6 +150,21 @@ func _regenerate_mp(delta: float) -> void:
 	var rate: float = float(Balance.section("player").get("mpRegenPerSecond", 0.0))
 	if rate > 0.0 and GameState.current_mp < GameState.max_mp:
 		GameState.set_mp(GameState.current_mp + rate * delta)
+
+
+## Give the player a soft personal light.
+##
+## Two jobs: it guarantees the character is never lost against a dark room —
+## which on a phone screen in daylight is a real failure mode, not a stylistic
+## one — and it is the only light permitted to cast shadows, so the castle gets
+## moving shadows without paying for them per torch.
+func _add_lantern() -> void:
+	var lantern: PointLight2D = LightingQuality.make_light(
+		LANTERN_COLOR, LANTERN_ENERGY, LANTERN_SCALE, true)
+	if lantern == null:
+		return
+	lantern.position = Vector2(0, -30)
+	add_child(lantern)
 
 
 # -- Movement helpers used by states ----------------------------------------
@@ -174,8 +213,9 @@ func _position_whip() -> void:
 	var reach: float = GameState.weapon_reach()
 	var shape := whip_shape.shape as RectangleShape2D
 	if shape != null:
-		shape.size = Vector2(reach, 14.0)
-	whip_shape.position = Vector2(float(facing) * (reach * 0.5 + 6.0), -10.0)
+		shape.size = Vector2(reach, WHIP_HITBOX_HEIGHT)
+	whip_shape.position = Vector2(
+		float(facing) * (reach * 0.5 + 8.0), WHIP_HITBOX_CENTRE_Y)
 
 
 # -- Jump gating -------------------------------------------------------------
@@ -308,7 +348,7 @@ func throw_subweapon() -> bool:
 			"sprite_animation": id,
 			"damage": damage,
 			"direction": facing,
-			"origin": global_position + Vector2(float(facing) * 8.0, -12.0),
+			"origin": global_position + Vector2(float(facing) * 14.0, -30.0),
 			"attacker": self,
 			"source": DamageInfo.Source.SUBWEAPON,
 			"target_layer": 4,  # "enemy"
@@ -335,6 +375,8 @@ func _on_hit_taken(info: DamageInfo, _damage: int) -> void:
 	_invulnerable_timer = iframes
 	hurtbox.grant_invulnerability(iframes)
 	AudioDirector.play_sfx("player_hurt")
+	SpriteFx.flash(sprite, Color(1.0, 0.45, 0.5))
+	Vfx.blood(effect_host(), global_position + Vector2(0, -30))
 	EventBus.screen_shake_requested.emit(3.0, 0.18)
 	EventBus.hit_stop_requested.emit(0.06)
 
@@ -417,22 +459,46 @@ func start_drop_through() -> void:
 ## Mist gates listen as a group rather than each checking the player every frame.
 func set_mist_intangible(intangible: bool) -> void:
 	hurtbox.active = not intangible
+	SpriteFx.set_mist(sprite, 1.0 if intangible else 0.0)
 	get_tree().call_group(MIST_GATE_GROUP, "set_permeable", intangible)
 
 
 ## Spawn a one-shot effect from the generated VFX atlas.
+##
+## Parented to the room rather than the player, so the effect stays where it was
+## made instead of following the character.
 func spawn_vfx(animation: String, at: Vector2) -> void:
-	var scene: PackedScene = load(VFX_SCENE) as PackedScene
-	if scene == null:
+	Vfx.spawn(effect_host(), Vfx.SHEET_VFX, animation, at)
+
+
+## Where transient effects should be parented.
+func effect_host() -> Node:
+	return get_parent() if get_parent() != null else self
+
+
+## World position of the character's feet, for dust.
+func feet_position() -> Vector2:
+	return global_position
+
+
+## Downward speed at the moment of the last landing.
+func last_fall_speed() -> float:
+	return _last_fall_speed
+
+
+## Emit a footfall puff every `interval` pixels of ground covered.
+##
+## Distance-based rather than time-based so the cadence matches the stride at any
+## speed, and so a player pushing into a wall does not spray dust on the spot.
+func tick_run_dust(delta: float, interval: float = 26.0) -> void:
+	if not is_on_floor():
+		_run_dust_accumulator = 0.0
 		return
-	var effect: Node = scene.instantiate()
-	# Parent to the room rather than the player so the effect does not follow.
-	var host: Node = get_parent() if get_parent() != null else self
-	host.add_child(effect)
-	if effect is Node2D:
-		(effect as Node2D).global_position = at
-	if effect.has_method("play_effect"):
-		effect.play_effect(animation)
+	_run_dust_accumulator += absf(velocity.x) * delta
+	if _run_dust_accumulator < interval:
+		return
+	_run_dust_accumulator = 0.0
+	Vfx.run_dust(effect_host(), feet_position(), facing)
 
 
 ## Disable input, e.g. during a room transition or a boss intro.

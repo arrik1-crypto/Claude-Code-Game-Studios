@@ -61,17 +61,62 @@ func test_double_jump_is_weaker_than_the_first_jump() -> void:
 		"the double jump must be the weaker of the two")
 
 
-func test_jump_height_clears_the_designed_gates() -> void:
-	# design/levels/room-graph.md gates the Twin Step on an 80px climb that a
-	# single jump must NOT clear and a double jump must.
-	var movement: Dictionary = Balance.section("movement")
-	var gravity: float = float(movement["gravity"])
-	var single: float = pow(float(movement["jumpVelocity"]), 2.0) / (2.0 * gravity)
-	var doubled: float = single + pow(float(movement["doubleJumpVelocity"]), 2.0) / (2.0 * gravity)
+## Height of the Twin Step gate in pixels, from design/levels/room-graph.md.
+const TWIN_STEP_GATE_PX: float = 130.0
 
-	assert_lt(single, 80.0, "a single jump must not clear the Twin Step gate")
-	assert_gt(doubled, 80.0, "a double jump must clear the Twin Step gate")
-	assert_gt(single, 48.0, "a single jump must still clear the ordinary 3-tile ledges")
+## Tallest ordinary ledge the player must clear without any relic.
+const ORDINARY_LEDGE_PX: float = 96.0
+
+## The character is 56px tall; a jump below this reads as a hop, not a leap.
+const MIN_JUMP_BODY_HEIGHTS: float = 1.5
+const CHARACTER_HEIGHT_PX: float = 56.0
+
+
+func _jump_apex() -> float:
+	var movement: Dictionary = Balance.section("movement")
+	return pow(float(movement["jumpVelocity"]), 2.0) / (2.0 * float(movement["gravity"]))
+
+
+func _double_jump_apex() -> float:
+	var movement: Dictionary = Balance.section("movement")
+	return _jump_apex() \
+		+ pow(float(movement["doubleJumpVelocity"]), 2.0) / (2.0 * float(movement["gravity"]))
+
+
+func test_jump_height_clears_the_designed_gates() -> void:
+	# This is the load-bearing contract between movement tuning and level design:
+	# the Twin Step gate is pure geometry, so re-tuning the jump without moving
+	# the ledge would silently open a sequence break. Failing here is the
+	# intended way to find that out.
+	var single: float = _jump_apex()
+	var doubled: float = _double_jump_apex()
+
+	assert_lt(single, TWIN_STEP_GATE_PX,
+		"a single jump must NOT clear the Twin Step gate or the relic is skippable")
+	assert_gt(doubled, TWIN_STEP_GATE_PX,
+		"a double jump must clear the Twin Step gate or the wing is unfinishable")
+	assert_gt(single, ORDINARY_LEDGE_PX,
+		"a single jump must still clear every ungated ledge in the castle")
+
+
+func test_jump_is_proportional_to_the_character() -> void:
+	# A 56px protagonist with a 60px jump reads as heavy in the wrong way. The
+	# genre norm is roughly 1.8 body heights.
+	var single: float = _jump_apex()
+	assert_gt(single, CHARACTER_HEIGHT_PX * MIN_JUMP_BODY_HEIGHTS,
+		"the jump must clear at least 1.5 character heights")
+	assert_lt(single, CHARACTER_HEIGHT_PX * 2.6,
+		"a jump over 2.6 character heights reads as floaty")
+
+
+func test_gate_has_margin_on_both_sides() -> void:
+	# Margins stop a small tuning nudge from flipping the gate open or shut.
+	var single: float = _jump_apex()
+	var doubled: float = _double_jump_apex()
+	assert_gt(TWIN_STEP_GATE_PX - single, 20.0,
+		"the gate needs headroom above the single jump")
+	assert_gt(doubled - TWIN_STEP_GATE_PX, 20.0,
+		"the gate needs headroom below the double jump")
 
 
 func test_mist_dash_outclasses_the_backdash() -> void:

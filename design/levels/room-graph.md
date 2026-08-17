@@ -66,7 +66,7 @@ route; ~6 minutes for one who does.
 
 | Gate | Location | Key | Enforced by |
 |---|---|---|---|
-| 80 px climb | entrance_hall → clock_stair | Twin Step | Geometry (jump physics) |
+| 128 px climb | entrance_hall → clock_stair | Twin Step | Geometry (jump physics) |
 | Mist barrier | medusa_gauntlet x=33 | Mist Dash | `MistGate` collision |
 
 Only two gates, deliberately. A slice with more locks than the player has keys
@@ -77,17 +77,29 @@ reads as a demo of a gating system rather than a place.
 The gate is a pure height check, so it depends on the jump numbers staying put.
 That contract is asserted in `tests/unit/data/data_balance_test.gd`:
 
-- a single jump must reach **less than 80 px** (it reaches 60.5)
-- a double jump must reach **more than 80 px** (it reaches 110.5)
-- a single jump must still clear the ordinary 48 px ledges
+- a single jump must reach **less than 128 px** (it reaches 101)
+- a double jump must reach **more than 128 px** (it reaches 181)
+- a single jump must still clear every ungated ledge (≤ 96 px)
+- both sides keep ≥ 20 px of margin, so a tuning nudge cannot silently flip the gate
+
+The gate room additionally declares `"_gateClimbPx": 128`, which the room
+validator cross-checks. In entrance_hall the highest ungated surface is the
+row-15 ledge (feet at 240 px) and the gate ledge is row 7 (feet at 112 px):
+240 − 112 = **128 px**.
 
 Re-tuning the jump without re-checking the level design therefore fails CI
 rather than silently opening a sequence break.
 
 ## Room format
 
-Rooms are ASCII grids in JSON, 40 × 18 tiles at 16 px — 640 × 288 px, slightly
-larger than the 480 × 270 viewport, so every room scrolls a little.
+Rooms are ASCII grids in JSON, **40 × 24 tiles** at 16 px — 640 × 384 px, larger
+than the 480 × 270 viewport in both axes, so every room scrolls.
+
+The grid grew from 18 to 24 rows when the protagonist was restored to native
+resolution: a 56 px character in an 18-row room has barely five body heights of
+vertical space, which reads as a corridor rather than a castle. Doorways are
+4 tiles, since the character occupies 3 tiles of collision and needs a fourth for
+headroom.
 
 ```json
 {

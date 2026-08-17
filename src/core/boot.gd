@@ -16,13 +16,27 @@ const REQUIRED_ACTIONS: PackedStringArray = [
 	"pause", "map_screen", "interact", "ui_confirm",
 ]
 
-## Generated assets the game cannot render without.
-const REQUIRED_ASSETS: PackedStringArray = [
+## Plain data files, shipped byte-for-byte. Godot does not import these, so the
+## filesystem is the right place to look for them.
+const REQUIRED_DATA_FILES: PackedStringArray = [
 	"res://assets/data/game_balance.json",
-	"res://assets/art/characters/hero.png",
 	"res://assets/art/characters/hero.json",
-	"res://assets/art/tiles/castle_tileset.png",
 	"res://assets/art/tiles/castle_tileset.json",
+]
+
+## Imported resources the game cannot render without.
+##
+## These MUST be checked with [ResourceLoader], never [FileAccess]. An exported
+## build ships the *imported* form — `.godot/imported/hero.png-<hash>.ctex` — and
+## never the source `.png`, so `FileAccess.file_exists("...hero.png")` is false
+## in every export even though the texture loads perfectly. Checked the wrong
+## way, this self-check reported four missing assets on every launch of the
+## Android APK and the Linux build while the game rendered correctly.
+## `ResourceLoader.exists` resolves through the import remap and is true in both
+## the editor and an export.
+const REQUIRED_TEXTURES: PackedStringArray = [
+	"res://assets/art/characters/hero.png",
+	"res://assets/art/tiles/castle_tileset.png",
 	"res://assets/art/props/props.png",
 	"res://assets/art/vfx/vfx.png",
 ]
@@ -51,9 +65,13 @@ func run_self_check() -> PackedStringArray:
 		if not InputMap.has_action(action):
 			problems.append("input action '%s' is missing from project.godot" % action)
 
-	for path: String in REQUIRED_ASSETS:
+	for path: String in REQUIRED_DATA_FILES:
 		if not FileAccess.file_exists(path):
-			problems.append("missing asset '%s' — run tools/asset-pipeline/generate_assets.py" % path)
+			problems.append("missing data file '%s' — run tools/asset-pipeline/generate_assets.py" % path)
+
+	for path: String in REQUIRED_TEXTURES:
+		if not ResourceLoader.exists(path):
+			problems.append("missing texture '%s' — run tools/asset-pipeline/generate_assets.py" % path)
 
 	if not Balance.is_loaded():
 		problems.append("balance data failed to load")

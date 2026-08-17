@@ -35,7 +35,7 @@ const SFX_PATHS: Dictionary = {
 const MUSIC_PATHS: Dictionary = {
 	"title": "res://assets/audio/music/title.ogg",
 	"explore": "res://assets/audio/music/explore.ogg",
-	"boss": "res://assets/audio/music/boss.wav",
+	"boss": "res://assets/audio/music/boss.ogg",
 }
 
 var _sfx_players: Array[AudioStreamPlayer] = []

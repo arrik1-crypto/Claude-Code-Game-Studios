@@ -6,7 +6,7 @@
 <!-- STATUS -->
 Epic: Vertical Slice
 Feature: Graphics upgrade
-Task: Complete — awaiting playtest
+Task: Android APK built and verified
 <!-- /STATUS -->
 
 ## What exists
@@ -21,7 +21,7 @@ with dynamic lighting, parallax and a full VFX layer.
 | Check | Command | Result |
 |---|---|---|
 | Room data | `python3 tools/ci/validate_rooms.py` | 11 rooms, 0 errors |
-| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 120 tests / 1377 assertions, all pass |
+| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 137 tests / 1429 assertions, all pass |
 | Runtime smoke + screenshots | `xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/debug/capture_scene.tscn -- --out=/tmp/shots` | PASS, 17 screenshots, zero engine errors |
 | Title screen | same, with `-- --title` | PASS |
 | Save room | same, with `-- --room=chapel_landing --door=save` | PASS |
@@ -135,3 +135,48 @@ Unchanged from the graphics pass and tracked in `design/art-bible.md` §4.4: 22
 doors are still invisible triggers (highest-value remaining art task), and the
 extra vertical room space from the 40x18 → 40x24 regrow is unused headroom rather
 than designed layout.
+
+
+## Android APK
+
+`build/android/crimson-vespers.apk` — 55.8 MB, debug-signed, arm64-v8a +
+armeabi-v7a, `com.crimsonvespers.game` v0.1.0 (code 1), minSdk 24 / target 35.
+Reproduce with `docs/BUILDING-ANDROID.md`; verify with
+`python3 tools/ci/verify_apk.py`. Evidence in
+`production/qa/evidence/2026-08-17-android-apk/`.
+
+The build is a non-gradle template export, so it needs only `apksigner`,
+`zipalign` and `adb` — all from the Ubuntu archive. **`dl.google.com` is blocked
+by egress policy in this environment**, so the full Android SDK was never
+downloaded; a symlink shim at `/opt/android-sdk` gives Godot the directory
+layout it insists on.
+
+### Bugs the APK work exposed
+
+Four, all of which had been invisible to the entire desktop test and screenshot
+pipeline because each one only manifests on a phone or in an export.
+
+| Bug | Why nothing caught it | Now guarded by |
+|---|---|---|
+| `display/window/handheld/orientation=1` is **portrait**, on a landscape-only game. Shipped since the first commit. | Desktop ignores handheld orientation entirely. | `mobile_config_test.gd`, plus a manifest decode in `verify_apk.py` |
+| Boot self-check used `FileAccess.file_exists()` on textures, so every exported build reported four missing assets while rendering them fine. | In the editor the source `.png` really is on disk; only an export ships the `.ctex` alone. | `boot_self_check_test.gd` asserts the *mechanism*, not the outcome |
+| Touch controls used fixed viewport coordinates, so on a 19.5:9 phone the action cluster and pause button sat ~60% across, out of thumb reach. | Every prior capture was 16:9, where the bug cannot appear. | `ui_touch_anchoring_test.gd` at 16:9, 19.5:9 and 20:9 |
+| Android export refused to run with a completely **empty** error message. | Godot's validation sets its failure flag without appending any text. | `mobile_config_test.gd` keeps `import_etc2_astc` on |
+
+### Also done
+
+- Boss theme transcoded 9.8 MB PCM → 0.6 MB Vorbis in the importer; total audio
+  14 MB → 4.1 MB.
+- Real launcher icons generated from the 64x64 game icon
+  (`tools/asset-pipeline/make_android_icons.py`). Without them Godot silently
+  ships its own robot logo.
+- `export_presets.cfg` un-ignored — it is the build definition and holds no
+  secrets.
+
+### Not verified — needs a physical device
+
+Rendering and framerate on real hardware, touch input, audio playback,
+save/load against Android storage, the 256 MB memory ceiling, and installation
+on a real arm64/armv7 device. No emulator is available: the Android emulator
+images also come from the blocked host. The closest proxy run is the exported
+**Linux** build, which boots clean and prints `boot checks passed.`

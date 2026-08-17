@@ -32,7 +32,14 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
-window/handheld/orientation=1
+; DisplayServer.SCREEN_SENSOR_LANDSCAPE. This is an enum, not a boolean, and the
+; value that looks like "on" is the wrong one: SCREEN_PORTRAIT is 1, which is
+; what this said until it was caught by decoding a built APK's manifest. Desktop
+; ignores handheld orientation entirely, so a landscape-only game with a 16:9
+; viewport and a two-thumb touch layout ran correctly everywhere except the one
+; platform the setting exists for. 4 maps to Android's `sensorLandscape`, so the
+; phone may be held either way up.
+window/handheld/orientation=4
 window/vsync/vsync_mode=1
 
 [gui]
@@ -139,6 +146,13 @@ common/physics_ticks_per_second=60
 
 renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
+; Required for any Android export — Godot refuses the export outright without
+; it, and silently: the validation sets its failure flag without a message.
+; This only makes ETC2/ASTC *available* to textures that ask for VRAM
+; compression. Every texture in this project imports at compress/mode=0
+; (Lossless) and is therefore untouched, which is what keeps the pixel art
+; crisp rather than block-compressed to mush.
+textures/vram_compression/import_etc2_astc=true
 textures/canvas_textures/default_texture_filter=0
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=false

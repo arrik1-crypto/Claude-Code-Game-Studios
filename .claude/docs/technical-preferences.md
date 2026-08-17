@@ -48,7 +48,7 @@
   under assertion; every room built in an integration test.
 - **Required Tests**: Balance formulas, progression curve, health component,
   room graph integrity, tileset collision.
-- **Current status**: 120 tests / 1377 assertions, all passing.
+- **Current status**: 137 tests / 1429 assertions, all passing.
 
 ## Forbidden Patterns
 
@@ -66,6 +66,14 @@
   `set_deferred` / `add_child.call_deferred`.
 - A child node calling back into its parent during its own `_ready`. Godot
   readies children first, so every `@onready` on the parent is still null.
+- `FileAccess.file_exists()` on an imported resource (`.png`, `.ogg`, `.wav`).
+  An exported build ships only the imported form under `.godot/imported/`, so
+  this is always false in an export and always true in the editor. Use
+  `ResourceLoader.exists()`. `FileAccess` is correct only for files Godot ships
+  verbatim, such as our JSON.
+- Positioning UI at fixed viewport coordinates. The project stretches with
+  `expand`, so a 19.5:9 phone gets a ~585x270 canvas and anything authored near
+  x=480 lands mid-screen. Anchor to a corner.
 
 ## Allowed Libraries / Addons
 

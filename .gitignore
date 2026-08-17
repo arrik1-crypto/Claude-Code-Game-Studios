@@ -42,6 +42,12 @@ dist/
 .godot/
 *.translation
 export_presets.cfg
+# ...except ours, which IS tracked: it is the build definition for the Android
+# APK and the Linux build, and it holds no secrets. The debug keystore path and
+# password live in the Godot editor settings, and the release keystore comes
+# from the GODOT_ANDROID_KEYSTORE_* environment variables — never from this file.
+# See docs/BUILDING-ANDROID.md.
+!export_presets.cfg
 # Uncomment if using Godot:
 # *.import
 
@@ -145,4 +151,3 @@ $RECYCLE.BIN/
 
 # === Godot ===
 .godot/
-export_presets.cfg

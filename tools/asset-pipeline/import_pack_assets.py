@@ -18,7 +18,12 @@ Transformations applied, and why:
   as a knob but should stay at 1.
 * **Grid sheets keep their grid.** The manifest records `columns`, and
   `SpriteSheetLoader` computes row/column regions, so no repacking is needed.
-* **Audio is copied verbatim.** No resampling; Godot handles the source formats.
+* **Audio is copied verbatim, with one exception.** SFX stay as WAV so they fire
+  without a decode delay. The boss theme arrives as 24-bit PCM — 9.8 MB for 39
+  seconds — and is transcoded to Vorbis to match the pack's other music tracks;
+  see `MUSIC_TRANSCODE`. Requires `ffmpeg` on PATH.
+* **The save point is recoloured on import.** It ships bright magenta, which is
+  off-palette for the castle; see `import_save_point`.
 """
 
 from __future__ import annotations
@@ -27,6 +32,7 @@ import argparse
 import colorsys
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -97,7 +103,17 @@ AUDIO_MAP: dict[str, str] = {
     "ch_03_game_systems/audio/ui_success_audio.wav": "sfx/save.wav",
     "ch_03_game_systems/music/title_01.ogg": "music/title.ogg",
     "ch_03_game_systems/music/dungeon_01.ogg": "music/explore.ogg",
-    "ch_06_boss_battles/audio/nega_pink_box_boss.wav": "music/boss.wav",
+}
+
+# The pack ships the boss theme as 24-bit stereo PCM: 39 seconds for 9.8 MB,
+# which was 70% of the entire APK's asset payload and would also have sat
+# uncompressed in memory against a 256 MB budget. The other two music tracks
+# already arrive as Vorbis at ~140 kbps, so the boss theme is transcoded to
+# match rather than shipped raw. Music is streamed, not a latency-sensitive
+# one-shot, so Vorbis costs nothing that matters here — unlike the SFX, which
+# stay as WAV precisely because they must fire without a decode delay.
+MUSIC_TRANSCODE: dict[str, tuple[str, str]] = {
+    "ch_06_boss_battles/audio/nega_pink_box_boss.wav": ("music/boss.ogg", "140k"),
 }
 
 # Dust: 256x96 at 32x32 -> 8 columns, 3 rows.
@@ -318,6 +334,28 @@ def import_save_point(pack: Path) -> None:
     print(f"  {dest.relative_to(REPO_ROOT)}  ({moved} px recoloured)")
 
 
+def transcode_music(pack: Path) -> None:
+    """Encode oversized PCM music to Vorbis at the pack's own music bitrate."""
+    print("music (transcoded):")
+    for src_rel, (dest_rel, bitrate) in MUSIC_TRANSCODE.items():
+        src = pack / src_rel
+        if not src.exists():
+            print(f"  MISSING {src_rel}")
+            continue
+        dest = AUDIO / dest_rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        result = subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+             "-c:a", "libvorbis", "-b:a", bitrate, str(dest)],
+            capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"  FAILED {dest_rel}: {result.stderr.strip()[:200]}")
+            continue
+        before = src.stat().st_size / 1048576
+        after = dest.stat().st_size / 1048576
+        print(f"  {dest.relative_to(REPO_ROOT)}  {before:.1f} MB -> {after:.1f} MB")
+
+
 def copy_files(pack: Path, mapping: dict[str, str], root: Path, label: str) -> None:
     print(f"{label}:")
     for src_rel, dest_rel in mapping.items():
@@ -357,6 +395,7 @@ def main() -> int:
     print("props:")
     import_save_point(pack)
     copy_files(pack, AUDIO_MAP, AUDIO, "audio")
+    transcode_music(pack)
     copy_files(pack, FONT_COPIES, FONTS, "fonts")
     print("done.")
     return 0

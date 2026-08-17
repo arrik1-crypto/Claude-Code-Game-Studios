@@ -1,0 +1,129 @@
+{
+  "id": "chapel_landing",
+  "name": "Chapel Landing",
+  "music": "explore",
+  "map": {
+    "x": 3,
+    "y": 3,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "The first safe beat: save coffin, no enemies, and the Silver Dagger on a pedestal. Deliberately quiet so the save point reads as a landmark on the map.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##..w....w....w....w....w....w....w...##",
+    "##....................................##",
+    "##....................................##",
+    "##...u..........................u.....##",
+    "##....................................##",
+    "##....................................##",
+    "##..........TTTTTTTTTTTTTT............##",
+    "##..........##############............##",
+    "##..........#.p........p.#............##",
+    "##..........#.P........P.#............##",
+    "##..........#.L........L.#............##",
+    ".............#..........#...............",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "west_corridor",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 14,
+      "to": "bat_gallery",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    },
+    {
+      "id": "save",
+      "x": 19,
+      "y": 14,
+      "to": "",
+      "toDoor": "",
+      "dir": 1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 8,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 31,
+      "y": 6
+    },
+    {
+      "type": "save_point",
+      "x": 19,
+      "y": 14,
+      "respawnDoor": "save"
+    },
+    {
+      "type": "relic",
+      "x": 29,
+      "y": 14,
+      "relicType": "subweapon",
+      "relicId": "dagger",
+      "displayName": "Silver Dagger",
+      "flag": "relic_dagger_taken",
+      "skipIfFlag": ""
+    },
+    {
+      "type": "pickup",
+      "item": "heart",
+      "x": 10,
+      "y": 14
+    },
+    {
+      "type": "pickup",
+      "item": "heart",
+      "x": 12,
+      "y": 14
+    },
+    {
+      "type": "cellar_slime",
+      "x": 33,
+      "y": 14
+    }
+  ]
+}

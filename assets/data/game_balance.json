@@ -1,0 +1,366 @@
+{
+  "_comment": "Crimson Vespers tuning data. Every gameplay number lives here, never in code. Rationale for each block is in design/gdd/ \u2014 see combat-system.md, progression-and-stats.md and traversal-moveset.md.",
+  "movement": {
+    "runSpeed": 118.0,
+    "airControlSpeed": 104.0,
+    "groundAcceleration": 1400.0,
+    "groundFriction": 1600.0,
+    "airAcceleration": 900.0,
+    "airFriction": 320.0,
+    "gravity": 900.0,
+    "maxFallSpeed": 420.0,
+    "jumpVelocity": -330.0,
+    "jumpCutMultiplier": 0.42,
+    "doubleJumpVelocity": -300.0,
+    "coyoteTime": 0.1,
+    "jumpBufferTime": 0.12,
+    "crouchSpeedMultiplier": 0.0,
+    "backdashSpeed": 240.0,
+    "backdashDuration": 0.22,
+    "backdashCooldown": 0.35,
+    "mistDashSpeed": 300.0,
+    "mistDashDuration": 0.18,
+    "mistDashCooldown": 0.55,
+    "hurtLockout": 0.28,
+    "invulnerabilityTime": 0.85,
+    "knockbackHorizontal": 150.0,
+    "knockbackVertical": 130.0,
+    "stairSpeed": 62.0
+  },
+  "player": {
+    "startingLevel": 1,
+    "startingStats": {
+      "strength": 6,
+      "constitution": 8,
+      "intelligence": 5,
+      "luck": 4
+    },
+    "statGainPerLevel": {
+      "strength": 1,
+      "constitution": 1,
+      "intelligence": 1,
+      "luck": 1
+    },
+    "hpBase": 60,
+    "hpPerConstitution": 4,
+    "hpPerLevel": 8,
+    "mpBase": 20,
+    "mpPerIntelligence": 3,
+    "mpPerLevel": 4,
+    "mpRegenPerSecond": 1.5,
+    "maxHearts": 40,
+    "startingHearts": 10,
+    "maxLevel": 99,
+    "expCurveBase": 24.0,
+    "expCurveExponent": 1.6,
+    "baseCritChance": 0.02,
+    "criticalMultiplier": 2.0
+  },
+  "weapons": {
+    "leather_whip": {
+      "displayName": "Leather Whip",
+      "attack": 4,
+      "reach": 26,
+      "description": "The Valcourt family whip. Unremarkable, and it has never failed."
+    },
+    "chain_whip": {
+      "displayName": "Chain Whip",
+      "attack": 9,
+      "reach": 34,
+      "description": "Iron links replace worn leather. Heavier, and it bites deeper."
+    }
+  },
+  "combo": {
+    "steps": [
+      {
+        "name": "attack_1",
+        "multiplier": 1.0,
+        "windup": 0.06,
+        "active": 0.1,
+        "recovery": 0.16
+      },
+      {
+        "name": "attack_2",
+        "multiplier": 1.15,
+        "windup": 0.06,
+        "active": 0.1,
+        "recovery": 0.16
+      },
+      {
+        "name": "attack_3",
+        "multiplier": 1.45,
+        "windup": 0.08,
+        "active": 0.12,
+        "recovery": 0.24
+      }
+    ],
+    "chainWindow": 0.36,
+    "airAttack": {
+      "multiplier": 1.1,
+      "windup": 0.05,
+      "active": 0.12,
+      "recovery": 0.14
+    }
+  },
+  "subweapons": {
+    "dagger": {
+      "displayName": "Silver Dagger",
+      "heartCost": 1,
+      "damageMultiplier": 0.7,
+      "speed": 260.0,
+      "lifetime": 1.4,
+      "gravityScale": 0.0,
+      "maxActive": 3,
+      "pierces": false
+    },
+    "axe": {
+      "displayName": "Throwing Axe",
+      "heartCost": 4,
+      "damageMultiplier": 1.35,
+      "speed": 170.0,
+      "launchVertical": -300.0,
+      "lifetime": 2.2,
+      "gravityScale": 1.0,
+      "maxActive": 2,
+      "pierces": true
+    },
+    "holy_water": {
+      "displayName": "Holy Water",
+      "heartCost": 3,
+      "damageMultiplier": 0.45,
+      "speed": 110.0,
+      "launchVertical": -170.0,
+      "lifetime": 3.0,
+      "gravityScale": 1.0,
+      "maxActive": 2,
+      "pierces": false,
+      "poolDuration": 1.8,
+      "poolTickInterval": 0.22
+    }
+  },
+  "enemies": {
+    "bone_sentry": {
+      "displayName": "Bone Sentry",
+      "level": 2,
+      "maxHp": 22,
+      "attack": 8,
+      "defense": 3,
+      "exp": 12,
+      "gold": 6,
+      "moveSpeed": 34.0,
+      "contactDamage": 8,
+      "aggroRange": 132.0,
+      "attackRange": 116.0,
+      "attackCooldown": 1.9,
+      "projectileSpeed": 118.0,
+      "turnAtLedge": true,
+      "drops": [
+        {
+          "item": "heart",
+          "chance": 0.45
+        },
+        {
+          "item": "gold",
+          "chance": 0.3
+        },
+        {
+          "item": "hp_orb",
+          "chance": 0.08
+        }
+      ]
+    },
+    "nightwing": {
+      "displayName": "Nightwing",
+      "level": 2,
+      "maxHp": 12,
+      "attack": 7,
+      "defense": 1,
+      "exp": 9,
+      "gold": 3,
+      "moveSpeed": 62.0,
+      "contactDamage": 7,
+      "aggroRange": 118.0,
+      "swoopSpeed": 132.0,
+      "hoverAmplitude": 16.0,
+      "hoverFrequency": 2.4,
+      "drops": [
+        {
+          "item": "heart",
+          "chance": 0.55
+        },
+        {
+          "item": "gold",
+          "chance": 0.2
+        }
+      ]
+    },
+    "gravewalker": {
+      "displayName": "Gravewalker",
+      "level": 3,
+      "maxHp": 40,
+      "attack": 11,
+      "defense": 6,
+      "exp": 18,
+      "gold": 10,
+      "moveSpeed": 20.0,
+      "contactDamage": 11,
+      "aggroRange": 150.0,
+      "turnAtLedge": false,
+      "drops": [
+        {
+          "item": "hp_orb",
+          "chance": 0.25
+        },
+        {
+          "item": "gold",
+          "chance": 0.4
+        },
+        {
+          "item": "heart",
+          "chance": 0.3
+        }
+      ]
+    },
+    "medusa_head": {
+      "displayName": "Medusa Head",
+      "level": 2,
+      "maxHp": 6,
+      "attack": 9,
+      "defense": 0,
+      "exp": 5,
+      "gold": 2,
+      "moveSpeed": 54.0,
+      "contactDamage": 9,
+      "waveAmplitude": 26.0,
+      "waveFrequency": 2.9,
+      "spawnerInterval": 2.4,
+      "spawnerMaxAlive": 3,
+      "drops": [
+        {
+          "item": "heart",
+          "chance": 0.35
+        }
+      ]
+    },
+    "cellar_slime": {
+      "displayName": "Cellar Slime",
+      "level": 1,
+      "maxHp": 16,
+      "attack": 6,
+      "defense": 1,
+      "exp": 7,
+      "gold": 4,
+      "moveSpeed": 62.0,
+      "contactDamage": 6,
+      "aggroRange": 140.0,
+      "drops": [
+        {
+          "item": "heart",
+          "chance": 0.5
+        },
+        {
+          "item": "gold",
+          "chance": 0.25
+        }
+      ]
+    }
+  },
+  "bosses": {
+    "sanguine_knight": {
+      "displayName": "Sanguine Knight, Sir Kaelis",
+      "level": 6,
+      "maxHp": 320,
+      "attack": 16,
+      "defense": 8,
+      "exp": 340,
+      "gold": 220,
+      "contactDamage": 12,
+      "moveSpeed": 42.0,
+      "phases": [
+        {
+          "name": "measured",
+          "hpThreshold": 1.0,
+          "moveSpeed": 42.0,
+          "attackCooldown": 2.1,
+          "pattern": [
+            "slash",
+            "slash",
+            "charge"
+          ]
+        },
+        {
+          "name": "pressed",
+          "hpThreshold": 0.6,
+          "moveSpeed": 58.0,
+          "attackCooldown": 1.5,
+          "pattern": [
+            "slash",
+            "charge",
+            "summon",
+            "slash"
+          ]
+        },
+        {
+          "name": "desperate",
+          "hpThreshold": 0.28,
+          "moveSpeed": 74.0,
+          "attackCooldown": 1.0,
+          "pattern": [
+            "charge",
+            "slash",
+            "slash",
+            "summon"
+          ]
+        }
+      ],
+      "slash": {
+        "damageMultiplier": 1.0,
+        "windup": 0.45,
+        "active": 0.18,
+        "recovery": 0.5,
+        "reach": 46
+      },
+      "charge": {
+        "damageMultiplier": 1.25,
+        "windup": 0.5,
+        "speed": 210.0,
+        "duration": 0.9,
+        "recovery": 0.7
+      },
+      "summon": {
+        "windup": 0.6,
+        "count": 2,
+        "enemy": "nightwing",
+        "recovery": 0.8
+      }
+    }
+  },
+  "pickups": {
+    "heart": {
+      "hearts": 1
+    },
+    "heart_large": {
+      "hearts": 5
+    },
+    "hp_orb": {
+      "hp": 18
+    },
+    "gold": {
+      "gold": 8
+    },
+    "gold_large": {
+      "gold": 40
+    }
+  },
+  "hazards": {
+    "spikes": {
+      "damage": 14,
+      "knockbackVertical": 220.0
+    },
+    "pitDamageFraction": 0.12
+  },
+  "economy": {
+    "deathGoldPenaltyFraction": 0.0,
+    "respawnHpFraction": 1.0
+  }
+}

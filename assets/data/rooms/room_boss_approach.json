@@ -1,0 +1,120 @@
+{
+  "id": "boss_approach",
+  "name": "Ash Antechamber",
+  "music": "explore",
+  "map": {
+    "x": 5,
+    "y": 2,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "Second save coffin, immediately before the boss. Stocked with hearts so a player who arrives dry is not forced to backtrack the whole wing.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##....................................##",
+    "##....u....................u..........##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##.......p..................p.........##",
+    "##.......P..................P.........##",
+    "##.......P..................P.........##",
+    "##.......L..................L.........##",
+    "##....................................##",
+    "##....................................##",
+    "........................................",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "medusa_gauntlet",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 14,
+      "to": "throne_of_ash",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    },
+    {
+      "id": "save",
+      "x": 19,
+      "y": 14,
+      "to": "",
+      "toDoor": "",
+      "dir": 1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 7,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 32,
+      "y": 6
+    },
+    {
+      "type": "save_point",
+      "x": 19,
+      "y": 14,
+      "respawnDoor": "save"
+    },
+    {
+      "type": "pickup",
+      "item": "heart_large",
+      "x": 14,
+      "y": 14
+    },
+    {
+      "type": "pickup",
+      "item": "heart_large",
+      "x": 25,
+      "y": 14
+    },
+    {
+      "type": "pickup",
+      "item": "hp_orb",
+      "x": 30,
+      "y": 14
+    }
+  ]
+}

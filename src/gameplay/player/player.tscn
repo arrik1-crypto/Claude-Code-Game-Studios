@@ -1,0 +1,114 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://src/gameplay/combat/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/gameplay/combat/hurtbox.gd" id="3_hurtbox"]
+[ext_resource type="Script" path="res://src/gameplay/combat/hitbox.gd" id="4_hitbox"]
+[ext_resource type="Script" path="res://src/gameplay/player/state_machine.gd" id="5_machine"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/idle_state.gd" id="6_idle"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/run_state.gd" id="7_run"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/crouch_state.gd" id="8_crouch"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/jump_state.gd" id="9_jump"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/fall_state.gd" id="10_fall"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/attack_state.gd" id="11_attack"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/air_attack_state.gd" id="12_air"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/backdash_state.gd" id="13_backdash"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/mist_dash_state.gd" id="14_mist"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/hurt_state.gd" id="15_hurt"]
+[ext_resource type="Script" path="res://src/gameplay/player/states/dead_state.gd" id="16_dead"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
+radius = 5.0
+height = 22.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_whip"]
+size = Vector2(26, 14)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 20.0
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 129
+floor_constant_speed = true
+floor_snap_length = 4.0
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -11)
+shape = SubResource("CapsuleShape2D_body")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+offset = Vector2(0, -19)
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+max_hp = 60
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("3_hurtbox")
+health = NodePath("../Health")
+invulnerability_time = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -11)
+shape = SubResource("CapsuleShape2D_body")
+
+[node name="WhipHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 4
+script = ExtResource("4_hitbox")
+damage = 1
+knockback_horizontal = 130.0
+knockback_vertical = 60.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WhipHitbox"]
+position = Vector2(19, -10)
+shape = SubResource("RectangleShape2D_whip")
+
+[node name="PickupCollector" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupCollector"]
+position = Vector2(0, -10)
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("5_machine")
+initial_state = &"Idle"
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("6_idle")
+
+[node name="Run" type="Node" parent="StateMachine"]
+script = ExtResource("7_run")
+
+[node name="Crouch" type="Node" parent="StateMachine"]
+script = ExtResource("8_crouch")
+
+[node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("9_jump")
+
+[node name="Fall" type="Node" parent="StateMachine"]
+script = ExtResource("10_fall")
+
+[node name="Attack" type="Node" parent="StateMachine"]
+script = ExtResource("11_attack")
+
+[node name="AirAttack" type="Node" parent="StateMachine"]
+script = ExtResource("12_air")
+
+[node name="Backdash" type="Node" parent="StateMachine"]
+script = ExtResource("13_backdash")
+
+[node name="MistDash" type="Node" parent="StateMachine"]
+script = ExtResource("14_mist")
+
+[node name="Hurt" type="Node" parent="StateMachine"]
+script = ExtResource("15_hurt")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("16_dead")

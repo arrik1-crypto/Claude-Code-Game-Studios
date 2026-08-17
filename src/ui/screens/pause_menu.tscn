@@ -1,0 +1,113 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/ui/screens/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" path="res://src/ui/screens/map_view.gd" id="2_mapview"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+layer = 40
+script = ExtResource("1_pause")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.015, 0.03, 0.94)
+mouse_filter = 2
+
+[node name="PausePanel" type="Control" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 120.0
+offset_top = 30.0
+offset_right = 360.0
+offset_bottom = 240.0
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Root/PausePanel"]
+layout_mode = 0
+offset_right = 240.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.827, 0.204, 0.286, 1)
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="StatsText" type="Label" parent="Root/PausePanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 28.0
+offset_right = 240.0
+offset_bottom = 180.0
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.949, 0.957, 0.984, 1)
+text = "Seraphine Valcourt"
+
+[node name="Hint" type="Label" parent="Root/PausePanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 188.0
+offset_right = 240.0
+offset_bottom = 202.0
+theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.6, 0.63, 0.71, 1)
+text = "ESC resume    TAB map"
+horizontal_alignment = 1
+
+[node name="MapPanel" type="Control" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 440.0
+offset_bottom = 250.0
+mouse_filter = 2
+
+[node name="MapTitle" type="Label" parent="Root/MapPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 400.0
+offset_bottom = 18.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.941, 0.804, 0.447, 1)
+text = "Castle Vhorn"
+horizontal_alignment = 1
+
+[node name="MapView" type="Control" parent="Root/MapPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 24.0
+offset_right = 400.0
+offset_bottom = 186.0
+mouse_filter = 2
+script = ExtResource("2_mapview")
+
+[node name="MapSummary" type="Label" parent="Root/MapPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 192.0
+offset_right = 400.0
+offset_bottom = 206.0
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.765, 0.784, 0.855, 1)
+text = "0 / 0 rooms"
+horizontal_alignment = 1
+
+[node name="MapHint" type="Label" parent="Root/MapPanel"]
+layout_mode = 0
+offset_top = 208.0
+offset_right = 400.0
+offset_bottom = 222.0
+theme_override_font_sizes/font_size = 8
+theme_override_colors/font_color = Color(0.6, 0.63, 0.71, 1)
+text = "TAB close"
+horizontal_alignment = 1

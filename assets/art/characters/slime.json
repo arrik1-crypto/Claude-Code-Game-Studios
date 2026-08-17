@@ -1,0 +1,44 @@
+{
+  "frameWidth": 48,
+  "frameHeight": 32,
+  "frameCount": 18,
+  "columns": 6,
+  "animations": {
+    "idle": {
+      "start": 0,
+      "count": 6,
+      "fps": 5.0,
+      "loop": true
+    },
+    "walk": {
+      "start": 0,
+      "count": 6,
+      "fps": 9.0,
+      "loop": true
+    },
+    "attack": {
+      "start": 0,
+      "count": 6,
+      "fps": 12.0,
+      "loop": true
+    },
+    "hurt": {
+      "start": 0,
+      "count": 1,
+      "fps": 1.0,
+      "loop": false
+    },
+    "death": {
+      "start": 6,
+      "count": 6,
+      "fps": 12.0,
+      "loop": false
+    },
+    "spawn": {
+      "start": 12,
+      "count": 6,
+      "fps": 12.0,
+      "loop": false
+    }
+  }
+}

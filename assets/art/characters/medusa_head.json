@@ -1,0 +1,37 @@
+{
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frameCount": 9,
+  "animations": {
+    "idle": {
+      "start": 0,
+      "count": 2,
+      "fps": 6.0,
+      "loop": true
+    },
+    "fly": {
+      "start": 2,
+      "count": 2,
+      "fps": 8.0,
+      "loop": true
+    },
+    "attack": {
+      "start": 4,
+      "count": 2,
+      "fps": 8.0,
+      "loop": true
+    },
+    "hurt": {
+      "start": 6,
+      "count": 1,
+      "fps": 1.0,
+      "loop": false
+    },
+    "death": {
+      "start": 7,
+      "count": 2,
+      "fps": 8.0,
+      "loop": false
+    }
+  }
+}

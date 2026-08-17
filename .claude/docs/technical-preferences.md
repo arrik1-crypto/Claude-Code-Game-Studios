@@ -5,83 +5,98 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.6 (pinned — `docs/engine-reference/godot/VERSION.md`)
+- **Language**: GDScript, statically typed
+- **Rendering**: `mobile` renderer; OpenGL3 compatibility fallback for CI capture
+- **Physics**: Godot Physics 2D (Jolt is 3D-only and does not apply here)
 
 ## Input & Platform
 
-<!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
-<!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
-
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Android and iOS phones/tablets; desktop for development
+- **Input Methods**: Touch, keyboard, gamepad — all driving the same `InputMap`
+- **Primary Input**: Touch (landscape, two thumbs)
+- **Gamepad Support**: Full
+- **Touch Support**: Full — scalable, adjustable-opacity, hideable overlay
+- **Platform Notes**: 480×270 reference viewport, `canvas_items` stretch with
+  `expand`. HUD is confined to the top-left, clear of both thumb zones. No
+  gesture input anywhere.
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: `PascalCase` (`CombatMath`, `RelicPedestal`)
+- **Variables / functions**: `snake_case`; private members prefixed `_`
+- **Signals**: `snake_case`, past tense (`damage_dealt`, `room_entered`)
+- **Files**: `snake_case.gd` / `snake_case.tscn`
+- **Scenes**: named after their root node
+- **Constants**: `SCREAMING_SNAKE_CASE`
+- **Data files**: `[system]_[name].json`; keys `camelCase`, except identifier
+  keys shared with asset filenames (`bone_sentry`, `brick_solid`)
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 fps on a mid-range 2022 Android device
+- **Frame Budget**: 16.6 ms
+- **Draw Calls**: < 120 per frame (one room, ≤ 12 entities)
+- **Memory Ceiling**: 256 MB resident; one room streamed at a time
+- **Export Size**: < 80 MB
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: Bespoke headless runner — `tests/test_runner.tscn`, base class
+  `tests/test_case.gd`. No third-party addon.
+- **Minimum Coverage**: 100% of `CombatMath`; every balance and room data file
+  under assertion; every room built in an integration test.
+- **Required Tests**: Balance formulas, progression curve, health component,
+  room graph integrity, tileset collision.
+- **Current status**: 95 tests / 1067 assertions, all passing.
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- Hardcoded gameplay values (all tuning lives in `assets/data/game_balance.json`)
+- `TileMap` (removed 4.3 — use `TileMapLayer`)
+- String-based `connect()` (use `signal.connect(callable)`)
+- `$NodePath` lookups inside `_process` / `_physics_process`
+- Untyped `Array` / `Dictionary` in new code
+- Static singletons for mutable gameplay state
+- Configuring exported properties *after* `add_child()`
+- Branching on input method in gameplay code
 
 ## Allowed Libraries / Addons
 
-<!-- Add approved third-party dependencies here -->
-- [None configured yet — add as dependencies are approved]
+- None. No third-party Godot addons are in use.
+- Asset pipeline (Python, dev-only): Pillow.
 
 ## Architecture Decisions Log
 
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+| ADR | Title | Status |
+|---|---|---|
+| ADR-001 | Godot 4.6 with GDScript | Accepted |
+| ADR-002 | Autoload service layer and EventBus | Accepted |
+| ADR-003 | Node-based finite state machine for the player | Accepted |
+| ADR-004 | Area2D hitbox/hurtbox combat with a layer matrix | Accepted |
+| ADR-005 | Data-driven balance and rooms | Accepted |
+| ADR-006 | Runtime construction of SpriteFrames and TileSet | Accepted |
 
 ## Engine Specialists
 
-<!-- Written by /setup-engine when engine is configured. -->
-<!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
-<!-- to know which specialist to spawn for engine-specific validation. -->
-
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: `godot-specialist`
+- **Language/Code Specialist**: `godot-gdscript-specialist`
+- **Shader Specialist**: `godot-shader-specialist`
+- **UI Specialist**: `godot-specialist` (no dedicated Godot UI agent exists)
+- **Additional Specialists**: `godot-csharp-specialist` and
+  `godot-gdextension-specialist` are available but unused — the project is
+  GDScript-only.
+- **Routing Notes**: Gameplay code routes to the GDScript specialist. Anything
+  touching the room builder, tileset construction or autoload wiring routes to
+  the primary specialist, since those cross system boundaries.
 
 ### File Extension Routing
 
-<!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
-
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| `*.gd` (gameplay code) | `godot-gdscript-specialist` |
+| `*.gdshader` / material | `godot-shader-specialist` |
+| `src/ui/**` screens | `godot-gdscript-specialist` |
+| `*.tscn` scene / room data | `godot-specialist` |
+| Native extension / plugin | `godot-gdextension-specialist` |
+| General architecture review | `godot-specialist` |

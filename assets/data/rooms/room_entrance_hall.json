@@ -1,0 +1,118 @@
+{
+  "id": "entrance_hall",
+  "name": "Entrance Hall",
+  "music": "explore",
+  "map": {
+    "x": 1,
+    "y": 3,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "The hub. The upper ledge at row 4 sits 80px above the row-9 platform \u2014 out of single-jump range (60px) and inside double-jump range (110px), so it is the Twin Step gate. See design/levels/room-graph.md.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##.....w..........w.....................",
+    "##......................................",
+    "##......................TTTTTTTTTTTTTTTT",
+    "##......................################",
+    "##...........u........................##",
+    "##....................................##",
+    "##....................................##",
+    "##..............TTTT..................##",
+    "##..............####..................##",
+    "##....................................##",
+    "##......TTTT..........................##",
+    "..........####..........................",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "outer_ward_gate",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 14,
+      "to": "west_corridor",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    },
+    {
+      "id": "upper_east",
+      "x": 38,
+      "y": 3,
+      "to": "clock_stair",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 5,
+      "y": 7
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 33,
+      "y": 3
+    },
+    {
+      "type": "prop",
+      "prop": "candle",
+      "x": 19,
+      "y": 8
+    },
+    {
+      "type": "bone_sentry",
+      "x": 24,
+      "y": 14
+    },
+    {
+      "type": "nightwing",
+      "x": 18,
+      "y": 6
+    },
+    {
+      "type": "pickup",
+      "item": "heart",
+      "x": 30,
+      "y": 3
+    }
+  ]
+}

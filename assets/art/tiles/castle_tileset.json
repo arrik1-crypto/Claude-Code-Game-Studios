@@ -1,0 +1,134 @@
+{
+  "tileSize": 16,
+  "columns": 8,
+  "tiles": {
+    "brick_solid": {
+      "x": 0,
+      "y": 0
+    },
+    "brick_top": {
+      "x": 1,
+      "y": 0
+    },
+    "brick_top_left": {
+      "x": 2,
+      "y": 0
+    },
+    "brick_top_right": {
+      "x": 3,
+      "y": 0
+    },
+    "brick_left": {
+      "x": 4,
+      "y": 0
+    },
+    "brick_right": {
+      "x": 5,
+      "y": 0
+    },
+    "brick_bottom": {
+      "x": 6,
+      "y": 0
+    },
+    "floor_stone": {
+      "x": 7,
+      "y": 0
+    },
+    "platform": {
+      "x": 0,
+      "y": 1
+    },
+    "pillar_top": {
+      "x": 1,
+      "y": 1
+    },
+    "pillar_mid": {
+      "x": 2,
+      "y": 1
+    },
+    "pillar_base": {
+      "x": 3,
+      "y": 1
+    },
+    "bg_brick": {
+      "x": 4,
+      "y": 1
+    },
+    "bg_arch": {
+      "x": 5,
+      "y": 1
+    },
+    "bg_window": {
+      "x": 6,
+      "y": 1
+    },
+    "spikes": {
+      "x": 7,
+      "y": 1
+    },
+    "stair_right": {
+      "x": 0,
+      "y": 2
+    },
+    "stair_left": {
+      "x": 1,
+      "y": 2
+    },
+    "rubble": {
+      "x": 2,
+      "y": 2
+    },
+    "bg_curtain": {
+      "x": 3,
+      "y": 2
+    },
+    "mist_gate": {
+      "x": 4,
+      "y": 2
+    },
+    "brick_cracked": {
+      "x": 5,
+      "y": 2
+    },
+    "bg_dark": {
+      "x": 6,
+      "y": 2
+    },
+    "iron_rail": {
+      "x": 7,
+      "y": 2
+    }
+  },
+  "solid": [
+    "brick_solid",
+    "brick_top",
+    "brick_top_left",
+    "brick_top_right",
+    "brick_left",
+    "brick_right",
+    "brick_bottom",
+    "brick_cracked",
+    "floor_stone",
+    "pillar_top",
+    "pillar_mid",
+    "pillar_base"
+  ],
+  "oneWay": [
+    "platform"
+  ],
+  "hazard": [
+    "spikes"
+  ],
+  "decor": [
+    "bg_brick",
+    "bg_arch",
+    "bg_window",
+    "bg_curtain",
+    "bg_dark",
+    "stair_right",
+    "stair_left",
+    "rubble",
+    "mist_gate",
+    "iron_rail"
+  ]
+}

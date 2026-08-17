@@ -1,0 +1,31 @@
+{
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frameCount": 16,
+  "animations": {
+    "hit_spark": {
+      "start": 0,
+      "count": 4,
+      "fps": 24.0,
+      "loop": false
+    },
+    "blood": {
+      "start": 4,
+      "count": 4,
+      "fps": 22.0,
+      "loop": false
+    },
+    "mist": {
+      "start": 8,
+      "count": 4,
+      "fps": 20.0,
+      "loop": false
+    },
+    "soul": {
+      "start": 12,
+      "count": 4,
+      "fps": 14.0,
+      "loop": false
+    }
+  }
+}

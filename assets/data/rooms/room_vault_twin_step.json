@@ -1,0 +1,108 @@
+{
+  "id": "vault_twin_step",
+  "name": "Vault of the Twin Step",
+  "music": "explore",
+  "map": {
+    "x": 5,
+    "y": 3,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "Dead end holding the Twin Step relic. Guarded by two Bone Sentries on ledges so the reward is earned, not walked into.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##..................w.................##",
+    "##....................................##",
+    "##....................................##",
+    "##......u...................u.........##",
+    "##....................................##",
+    "##.....TTTTT.............TTTTT........##",
+    "##.....#####.............#####........##",
+    "##....................................##",
+    "##....................................##",
+    "##.................TTTT...............##",
+    "##.................####...............##",
+    "..................................######",
+    "..................................######",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "bat_gallery",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 8,
+      "y": 5
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 29,
+      "y": 5
+    },
+    {
+      "type": "bone_sentry",
+      "x": 9,
+      "y": 7
+    },
+    {
+      "type": "bone_sentry",
+      "x": 27,
+      "y": 7
+    },
+    {
+      "type": "gravewalker",
+      "x": 24,
+      "y": 14
+    },
+    {
+      "type": "relic",
+      "x": 20,
+      "y": 11,
+      "relicType": "ability",
+      "relicId": "double_jump",
+      "displayName": "Twin Step",
+      "flag": "relic_twin_step_taken"
+    },
+    {
+      "type": "pickup",
+      "item": "hp_orb",
+      "x": 6,
+      "y": 14
+    }
+  ]
+}

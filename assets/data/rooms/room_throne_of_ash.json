@@ -1,0 +1,99 @@
+{
+  "id": "throne_of_ash",
+  "name": "Throne of Ash",
+  "music": "boss",
+  "map": {
+    "x": 6,
+    "y": 2,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_dark",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "Boss arena. Flat and closed on purpose: the Sanguine Knight's charge needs walls to slam into, and platforms would let the player trivialise the fight from above. Two low planks give just enough vertical play to dodge the sweep.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##..................w.................##",
+    "##....................................##",
+    "##....u.......................u.......##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##.....====..................====.....##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "........................................",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "boss_approach",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 6,
+      "y": 5
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 33,
+      "y": 5
+    },
+    {
+      "type": "prop",
+      "prop": "candle",
+      "x": 20,
+      "y": 6
+    },
+    {
+      "type": "sanguine_knight",
+      "x": 30,
+      "y": 14,
+      "skipIfFlag": "boss_sanguine_knight_defeated"
+    },
+    {
+      "type": "relic",
+      "x": 20,
+      "y": 14,
+      "relicType": "weapon",
+      "relicId": "chain_whip",
+      "displayName": "Chain Whip",
+      "flag": "relic_chain_whip_taken"
+    }
+  ]
+}

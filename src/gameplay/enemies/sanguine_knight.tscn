@@ -1,0 +1,72 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/enemies/sanguine_knight.gd" id="1_knight"]
+[ext_resource type="Script" path="res://src/gameplay/combat/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/gameplay/combat/hurtbox.gd" id="3_hurtbox"]
+[ext_resource type="Script" path="res://src/gameplay/combat/hitbox.gd" id="4_hitbox"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_knight"]
+radius = 11.0
+height = 42.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_contact"]
+size = Vector2(26, 42)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sword"]
+size = Vector2(46, 34)
+
+[node name="SanguineKnight" type="CharacterBody2D" groups=["boss"]]
+collision_layer = 4
+collision_mask = 1
+floor_snap_length = 4.0
+script = ExtResource("1_knight")
+enemy_id = "sanguine_knight"
+stat_section = "bosses"
+hurt_duration = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -21)
+shape = SubResource("CapsuleShape2D_knight")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+offset = Vector2(0, -30)
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+max_hp = 320
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("3_hurtbox")
+health = NodePath("../Health")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -21)
+shape = SubResource("CapsuleShape2D_knight")
+
+[node name="ContactHitbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("4_hitbox")
+damage = 12
+knockback_horizontal = 170.0
+knockback_vertical = 120.0
+continuous = true
+retrigger_interval = 0.8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactHitbox"]
+position = Vector2(0, -21)
+shape = SubResource("RectangleShape2D_contact")
+
+[node name="SwordHitbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("4_hitbox")
+damage = 16
+knockback_horizontal = 190.0
+knockback_vertical = 150.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SwordHitbox"]
+position = Vector2(33, -18)
+shape = SubResource("RectangleShape2D_sword")

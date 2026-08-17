@@ -1,0 +1,119 @@
+{
+  "id": "clock_stair",
+  "name": "Clocktower Stair",
+  "music": "explore",
+  "map": {
+    "x": 2,
+    "y": 2,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "First room past the Twin Step gate. A climb built entirely from double-jump-sized gaps, so the new ability is immediately exercised.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "I": "iron_rail"
+  },
+  "fg": [
+    "####################################....",
+    "####################################....",
+    "##...........................TTTTTTTTTTT",
+    "##...........................###########",
+    "##....w...............................##",
+    "##..................TTTTT.............##",
+    "##..................#####.............##",
+    "##....................................##",
+    "##.........TTTTT......................##",
+    "##.........#####......................##",
+    "##....................................##",
+    "##................TTTTT...............##",
+    "##................#####...............##",
+    "........................................",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "entrance_hall",
+      "toDoor": "upper_east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 1,
+      "to": "vault_mist",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 6,
+      "y": 8
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 32,
+      "y": 4
+    },
+    {
+      "type": "nightwing",
+      "x": 16,
+      "y": 6
+    },
+    {
+      "type": "nightwing",
+      "x": 26,
+      "y": 9
+    },
+    {
+      "type": "bone_sentry",
+      "x": 20,
+      "y": 11
+    },
+    {
+      "type": "pickup",
+      "item": "heart",
+      "x": 22,
+      "y": 5
+    },
+    {
+      "type": "pickup",
+      "item": "gold",
+      "x": 13,
+      "y": 8
+    },
+    {
+      "type": "cellar_slime",
+      "x": 30,
+      "y": 14
+    }
+  ]
+}

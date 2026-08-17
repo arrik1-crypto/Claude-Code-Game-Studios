@@ -1,0 +1,112 @@
+{
+  "id": "vault_mist",
+  "name": "Vault of Mist",
+  "music": "explore",
+  "map": {
+    "x": 3,
+    "y": 2,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "Holds the Mist Dash. The exit east is at floor level and unguarded \u2014 the player should leave this room wanting to try the new relic, not fighting.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch",
+    "u": "bg_curtain"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##....................................##",
+    "##.........w..............w...........##",
+    "##....................................##",
+    "##....................................##",
+    "##......u...................u.........##",
+    "##....................................##",
+    "##....................................##",
+    "##........TTTTT.........TTTTT.........##",
+    "##........#####.........#####.........##",
+    "##....................................##",
+    "##....................................##",
+    "........................................",
+    "........................................",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "clock_stair",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 14,
+      "to": "medusa_gauntlet",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 8,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 31,
+      "y": 6
+    },
+    {
+      "type": "bone_sentry",
+      "x": 12,
+      "y": 9
+    },
+    {
+      "type": "bone_sentry",
+      "x": 27,
+      "y": 9
+    },
+    {
+      "type": "relic",
+      "x": 20,
+      "y": 14,
+      "relicType": "ability",
+      "relicId": "mist_dash",
+      "displayName": "Mist Dash",
+      "flag": "relic_mist_dash_taken"
+    },
+    {
+      "type": "pickup",
+      "item": "hp_orb",
+      "x": 34,
+      "y": 14
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/combat/projectile.gd" id="1_projectile"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_projectile"]
+size = Vector2(12, 8)
+
+[node name="Projectile" type="Area2D"]
+collision_layer = 8
+collision_mask = 5
+script = ExtResource("1_projectile")
+knockback_horizontal = 90.0
+knockback_vertical = 40.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_projectile")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]

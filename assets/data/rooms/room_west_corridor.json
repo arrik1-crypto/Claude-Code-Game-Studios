@@ -1,0 +1,119 @@
+{
+  "id": "west_corridor",
+  "name": "Servants' Corridor",
+  "music": "explore",
+  "map": {
+    "x": 2,
+    "y": 3,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 4,
+    "y": 14
+  },
+  "_design_note": "Teaches spacing against the Gravewalker: a low ceiling and spike pits mean the player cannot simply back up forever.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "########################################",
+    "########################################",
+    "####################a###################",
+    "##....................................##",
+    "##....................................##",
+    "##.........===........===.............##",
+    "##....................................##",
+    "##....................................##",
+    "##....a...............................##",
+    "##....................................##",
+    "##....................................##",
+    "........................................",
+    "........................................",
+    "TTTTTTTT^^^TTTTTTTTTTT^^^TTTTTTTTTTTTTTT",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 14,
+      "to": "entrance_hall",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 14,
+      "to": "chapel_landing",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 6,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 20,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 34,
+      "y": 6
+    },
+    {
+      "type": "gravewalker",
+      "x": 17,
+      "y": 14
+    },
+    {
+      "type": "gravewalker",
+      "x": 30,
+      "y": 14
+    },
+    {
+      "type": "bone_sentry",
+      "x": 12,
+      "y": 7
+    },
+    {
+      "type": "pickup",
+      "item": "hp_orb",
+      "x": 24,
+      "y": 7
+    },
+    {
+      "type": "cellar_slime",
+      "x": 23,
+      "y": 14
+    }
+  ]
+}

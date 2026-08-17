@@ -5,11 +5,15 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 ## Technology Stack
 
-- **Engine**: [CHOOSE: Godot 4 / Unity / Unreal Engine 5]
-- **Language**: [CHOOSE: GDScript / C# / C++ / Blueprint]
+- **Engine**: Godot 4.6 (mobile renderer; OpenGL3 fallback for CI)
+- **Language**: GDScript (statically typed) — see `docs/architecture/ADR-001-engine-and-language.md`
 - **Version Control**: Git with trunk-based development
-- **Build System**: [SPECIFY after choosing engine]
-- **Asset Pipeline**: [SPECIFY after choosing engine]
+- **Build System**: Godot export presets; CI runs `godot --headless`
+- **Asset Pipeline**: `tools/asset-pipeline/` — `generate_assets.py` (procedural placeholders)
+  and `import_pack_assets.py` (third-party pack import). Both are deterministic and re-runnable.
+
+**Game**: *Crimson Vespers* — a gothic Metroidvania for mobile.
+See `design/game-concept.md`.
 
 > **Note**: Engine-specialist agents exist for Godot, Unity, and Unreal with
 > dedicated sub-specialists. Use the set matching your engine.

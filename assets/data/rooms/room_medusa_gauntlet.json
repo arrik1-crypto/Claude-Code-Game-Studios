@@ -1,0 +1,117 @@
+{
+  "id": "medusa_gauntlet",
+  "name": "The Long Gallery",
+  "music": "explore",
+  "map": {
+    "x": 4,
+    "y": 2,
+    "w": 1,
+    "h": 1
+  },
+  "bgFill": "bg_brick",
+  "spawn": {
+    "x": 3,
+    "y": 12
+  },
+  "_design_note": "Medusa Heads stream leftwards over a spike pit while the player crosses on planks. The mist gate at x=33 is the Mist Dash lock; the player has just been handed the key one room back.",
+  "legend": {
+    "#": "brick_solid",
+    "T": "brick_top",
+    "C": "brick_cracked",
+    "=": "platform",
+    "^": "spikes",
+    "P": "pillar_mid",
+    "p": "pillar_top",
+    "L": "pillar_base",
+    "R": "rubble",
+    "w": "bg_window",
+    "a": "bg_arch"
+  },
+  "fg": [
+    "########################################",
+    "########################################",
+    "##....................................##",
+    "##......w..........w..........w.......##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##....................................##",
+    "##......====....====....====..........##",
+    "##....................................##",
+    "##....................................##",
+    "....====....====....====....====........",
+    "........................................",
+    "TTTTTT......................TTTTTTTTTTTT",
+    "######......................############",
+    "######^^^^^^^^^^^^^^^^^^^^^^############",
+    "########################################",
+    "########################################"
+  ],
+  "doors": [
+    {
+      "id": "west",
+      "x": 1,
+      "y": 12,
+      "to": "vault_mist",
+      "toDoor": "east",
+      "dir": 1,
+      "height": 2
+    },
+    {
+      "id": "east",
+      "x": 38,
+      "y": 12,
+      "to": "boss_approach",
+      "toDoor": "west",
+      "dir": -1,
+      "height": 2
+    }
+  ],
+  "entities": [
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 4,
+      "y": 6
+    },
+    {
+      "type": "prop",
+      "prop": "torch",
+      "light": true,
+      "x": 35,
+      "y": 6
+    },
+    {
+      "type": "medusa_spawner",
+      "x": 37,
+      "y": 8,
+      "direction": -1,
+      "spread": 46
+    },
+    {
+      "type": "medusa_spawner",
+      "x": 37,
+      "y": 12,
+      "direction": -1,
+      "spread": 30
+    },
+    {
+      "type": "mist_gate",
+      "x": 33,
+      "y": 12,
+      "height": 48
+    },
+    {
+      "type": "nightwing",
+      "x": 16,
+      "y": 5
+    },
+    {
+      "type": "pickup",
+      "item": "heart",
+      "x": 20,
+      "y": 8
+    }
+  ]
+}

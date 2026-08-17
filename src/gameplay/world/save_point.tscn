@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/gameplay/world/save_point.gd" id="1_save"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_save"]
+size = Vector2(28, 32)
+
+[node name="SavePoint" type="Area2D"]
+collision_layer = 64
+collision_mask = 2
+script = ExtResource("1_save")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_save")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)
+
+[node name="Prompt" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -44.0
+offset_right = 20.0
+offset_bottom = -30.0
+theme_override_font_sizes/font_size = 10
+text = "REST"
+horizontal_alignment = 1

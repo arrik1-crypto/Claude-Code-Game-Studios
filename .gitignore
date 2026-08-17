@@ -142,3 +142,7 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+# === Godot ===
+.godot/
+export_presets.cfg

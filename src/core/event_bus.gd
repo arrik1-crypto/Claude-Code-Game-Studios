@@ -82,3 +82,12 @@ signal hit_stop_requested(duration: float)
 
 ## Show a transient message in the HUD (item pickups, ability unlocks).
 signal toast_requested(message: String)
+
+## A full-screen overlay (pause panel or map) opened or closed.
+##
+## Emitted so the touch layer can put its gameplay buttons away while the world
+## is frozen. The touch controls must keep processing while paused — otherwise
+## the button that opened the pause menu is itself frozen and a touch-only
+## player can never close it — but a live d-pad over a stopped game would leak
+## input into the next frame.
+signal overlay_toggled(is_open: bool)

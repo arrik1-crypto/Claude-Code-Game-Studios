@@ -1,1 +1,1 @@
-265abf91a856868837666e21465ca9fb205c7a97189c756f3c8a4d45468b784b  build/android/crimson-vespers.apk
+8cc8a5cae1be8780dd7a7589f60523d34c6f9b78a894ee77422a0fa4345c84df  build/android/crimson-vespers.apk

@@ -44,6 +44,23 @@ func _ready() -> void:
 
 
 ## True while a transition is in flight. Input handlers should ignore actions.
+## Route the Android Back button.
+##
+## With `quit_on_go_back` left at its default, Android's Back button tears the
+## app down instantly. This game only writes a save at a coffin, so one stray
+## back-swipe on a gesture-navigation phone discards the entire run. Back is
+## handed to the pause menu when gameplay is running; on the title and game-over
+## screens there is nothing to go back *to*, so it quits, which is what the
+## platform convention expects of a root screen.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_WM_GO_BACK_REQUEST:
+		return
+	for menu: Node in get_tree().get_nodes_in_group(&"pause_menu"):
+		if menu.has_method("handle_back_request") and menu.handle_back_request():
+			return
+	get_tree().quit()
+
+
 func is_busy() -> bool:
 	return _busy
 

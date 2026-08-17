@@ -48,7 +48,7 @@
   under assertion; every room built in an integration test.
 - **Required Tests**: Balance formulas, progression curve, health component,
   room graph integrity, tileset collision.
-- **Current status**: 137 tests / 1429 assertions, all passing.
+- **Current status**: 146 tests / 1449 assertions, all passing.
 
 ## Forbidden Patterns
 
@@ -74,6 +74,11 @@
 - Positioning UI at fixed viewport coordinates. The project stretches with
   `expand`, so a 19.5:9 phone gets a ~585x270 canvas and anything authored near
   x=480 lands mid-screen. Anchor to a corner.
+- `PROCESS_MODE_PAUSABLE` on the touch control layer. It contains the button
+  that pauses the game, so pausing freezes the only way back out and a
+  touch-only player must force-quit. Use `PROCESS_MODE_ALWAYS` and hide the
+  gameplay buttons on `EventBus.overlay_toggled`.
+- Prompting the player with a key name without checking there is a keyboard.
 
 ## Allowed Libraries / Addons
 

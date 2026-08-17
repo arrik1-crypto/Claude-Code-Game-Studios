@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://src/ui/touch/touch_controls.gd" id="1_touch"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/dpad_up.png" id="2_up"]
@@ -19,6 +19,8 @@
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_dash_pressed.png" id="18_btn_dash_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_pause.png" id="10_pause"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_pause_pressed.png" id="19_btn_pause_p"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_map.png" id="20_map"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_map_pressed.png" id="21_btn_map_p"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dpad"]
 size = Vector2(24, 24)
@@ -101,3 +103,10 @@ texture_normal = ExtResource("10_pause")
 texture_pressed = ExtResource("19_btn_pause_p")
 shape = SubResource("RectangleShape2D_dpad")
 action = "pause"
+
+[node name="BtnMap" type="TouchScreenButton" parent="Buttons"]
+position = Vector2(420, 8)
+texture_normal = ExtResource("20_map")
+texture_pressed = ExtResource("21_btn_map_p")
+shape = SubResource("RectangleShape2D_dpad")
+action = "map_screen"

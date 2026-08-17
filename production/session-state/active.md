@@ -21,7 +21,7 @@ with dynamic lighting, parallax and a full VFX layer.
 | Check | Command | Result |
 |---|---|---|
 | Room data | `python3 tools/ci/validate_rooms.py` | 11 rooms, 0 errors |
-| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 137 tests / 1429 assertions, all pass |
+| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 146 tests / 1449 assertions, all pass |
 | Runtime smoke + screenshots | `xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/debug/capture_scene.tscn -- --out=/tmp/shots` | PASS, 17 screenshots, zero engine errors |
 | Title screen | same, with `-- --title` | PASS |
 | Save room | same, with `-- --room=chapel_landing --door=save` | PASS |
@@ -180,3 +180,35 @@ save/load against Android storage, the 256 MB memory ceiling, and installation
 on a real arm64/armv7 device. No emulator is available: the Android emulator
 images also come from the blocked host. The closest proxy run is the exported
 **Linux** build, which boots clean and prints `boot checks passed.`
+
+
+## Touch soft-lock (found by the readiness audit, after the first APK)
+
+The first APK was **unfinishable by touch**, the only input method the game
+targets. `TouchControls` was `PROCESS_MODE_PAUSABLE` and `PauseMenu` sets
+`get_tree().paused = true`, so tapping pause froze the entire touch layer —
+including the pause button. `pause_menu.tscn` has no `Button` node, and the
+`ui_confirm` escape hatch is bound to Enter and Space only. On a phone the sole
+way out was to force-quit, losing everything since the last coffin.
+
+Two more from the same audit:
+
+- **The map screen had no touch route at all** — `map_screen` was Tab or joypad
+  button 4. `btn_map.png` had been sitting unused in `assets/art/ui/` since the
+  pack import.
+- **Android's Back button quit the app instantly**, discarding the run, because
+  `quit_on_go_back` defaults to true and nothing handled
+  `NOTIFICATION_WM_GO_BACK_REQUEST`.
+
+Fixed: the touch layer runs `ALWAYS` and withdraws its gameplay buttons on
+`EventBus.overlay_toggled`, releasing any held action so nothing latches across
+the pause; `BtnMap` added; Back routes through `SceneDirector` to the pause menu
+and only quits from a root screen. Covered by
+`tests/integration/ui_touch_pause_test.gd` (9 tests).
+
+## Known limitation: Google Play targetSdk
+
+The APK targets SDK 35. Google Play requires 36 for new apps and updates from
+31 August 2026. Raising it needs `gradle_build/use_gradle_build=true`, which
+needs the real Android SDK — unavailable here, since `dl.google.com` is blocked
+by egress policy. Sideloading is unaffected; this only blocks a Play submission.

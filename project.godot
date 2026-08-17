@@ -12,6 +12,10 @@ config/version="0.1.0"
 run/main_scene="res://src/core/boot.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://assets/art/ui/icon.png"
+; Android's Back button defaults to killing the app outright. This game saves
+; only at coffins, so that discards the whole run. SceneDirector routes the
+; request to the pause menu instead — see its _notification handler.
+config/quit_on_go_back=false
 boot_splash/show_image=false
 boot_splash/bg_color=Color(0.043, 0.035, 0.062, 1)
 

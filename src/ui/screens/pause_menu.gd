@@ -27,7 +27,27 @@ var _screen: Screen = Screen.NONE
 func _ready() -> void:
 	layer = 40
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(&"pause_menu")
 	_show(Screen.NONE)
+
+
+## Handle the Android hardware/gesture Back button.
+##
+## `application/config/quit_on_go_back` is disabled in project.godot, so this is
+## the only thing standing between a stray back-swipe and the player losing
+## every minute since their last coffin. Back closes an overlay if one is up,
+## and otherwise opens the pause menu — the Android convention of "go up one
+## level", not "exit".
+##
+## Returns true when the press was consumed.
+func handle_back_request() -> bool:
+	if SceneDirector.is_busy():
+		return true
+	if _screen != Screen.NONE:
+		_show(Screen.NONE)
+	else:
+		_show(Screen.PAUSED)
+	return true
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,6 +79,9 @@ func _show(screen: Screen) -> void:
 	pause_panel.visible = screen == Screen.PAUSED
 	map_panel.visible = screen == Screen.MAP
 	get_tree().paused = showing
+	# The touch layer needs this: it stays alive while paused so its pause and
+	# map buttons still work, and hides the gameplay buttons in response.
+	EventBus.overlay_toggled.emit(showing)
 
 	if screen == Screen.PAUSED:
 		_refresh_stats()
@@ -87,7 +110,19 @@ func _refresh_stats() -> void:
 		"Next level   %d exp" % GameState.exp_to_next_level(),
 		"Playtime     %d:%02d" % [minutes, seconds],
 	])
-	hint.text = "ESC resume    TAB map"
+	hint.text = _dismiss_hint()
+
+
+## What to tell the player about getting out of here.
+##
+## Branching on input method is forbidden in gameplay code, but this is the one
+## place it is the whole point: naming a key that a phone does not have is not a
+## hint, it is a dead end. The touch wording matches the two buttons left live
+## in the corner while the overlay is up.
+func _dismiss_hint() -> String:
+	if DisplayServer.is_touchscreen_available():
+		return "tap  ▮▮  resume     tap  ▤  map"
+	return "ESC resume    TAB map"
 
 
 func _refresh_map() -> void:

@@ -24,6 +24,13 @@ const NEAR_SCALE: Vector2 = Vector2(0.46, 0.18)
 ## Width of the generated layer art, used for horizontal tiling.
 const LAYER_WIDTH: float = 480.0
 
+## How much darker than the room ambient the backdrop sits.
+##
+## Deliberately DARKER. The backdrop is scenery the player can never touch, so it
+## must never compete with the platforms they can. Aerial perspective in this
+## palette is low contrast, not high brightness.
+const BACKDROP_DIM: float = 0.62
+
 @onready var sky_layer: ParallaxLayer = $SkyLayer
 @onready var far_layer: ParallaxLayer = $FarLayer
 @onready var near_layer: ParallaxLayer = $NearLayer
@@ -45,17 +52,19 @@ func set_active(active: bool) -> void:
 
 ## Tint the backdrop to sit behind the room's ambient light.
 ##
-## Deliberately DARKER than the room ambient. The backdrop is scenery the player
-## can never touch, so it must never compete with the platforms they can. Aerial
-## perspective in this palette is low contrast, not high brightness.
-const BACKDROP_DIM: float = 0.62
-
+## The tint goes on the three [ParallaxLayer] children, not on this node.
+## `ParallaxBackground` is a `CanvasLayer`, and `CanvasLayer` has no `modulate` —
+## only `CanvasItem` does. Assigning it here is a parse error that takes the whole
+## script, and every script that depends on it, out of the build.
 func match_ambient(ambient: Color) -> void:
-	modulate = Color(
+	var tint := Color(
 		ambient.r * BACKDROP_DIM,
 		ambient.g * BACKDROP_DIM,
 		ambient.b * BACKDROP_DIM * 1.08,
 		1.0)
+	for layer_node: ParallaxLayer in [sky_layer, far_layer, near_layer]:
+		if layer_node != null:
+			layer_node.modulate = tint
 
 
 func _process(delta: float) -> void:

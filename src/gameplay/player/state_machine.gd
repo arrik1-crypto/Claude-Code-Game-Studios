@@ -22,6 +22,7 @@ var previous_state_name: StringName = &""
 var _states: Dictionary = {}
 var _pending: StringName = &""
 var _pending_payload: Dictionary = {}
+var _started: bool = false
 
 
 func _ready() -> void:
@@ -44,6 +45,20 @@ func _ready() -> void:
 		initial_state = _states.keys()[0]
 
 	current_state = _states[initial_state]
+
+
+## Enter the initial state and begin running.
+##
+## Deliberately NOT done in `_ready`. Godot readies children before their parent,
+## so this node is ready while the [Player] that owns it still has every
+## `@onready` reference unset — and `enter()` immediately calls back into the
+## player to set an animation. Letting the machine self-start threw
+## "Invalid access to property 'sprite_frames' on a base object of type 'Nil'"
+## on every single spawn. The owner starts it once it is genuinely ready.
+func start() -> void:
+	if current_state == null or _started:
+		return
+	_started = true
 	current_state.enter({})
 
 

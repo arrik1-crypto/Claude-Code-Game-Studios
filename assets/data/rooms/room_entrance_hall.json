@@ -2,6 +2,7 @@
   "id": "entrance_hall",
   "name": "Entrance Hall",
   "music": "explore",
+  "ambient": "default",
   "map": {
     "x": 1,
     "y": 3,

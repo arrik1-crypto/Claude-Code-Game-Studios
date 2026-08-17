@@ -279,12 +279,22 @@ func _spawn_drops() -> void:
 		if randf() > float(drop.get("chance", 0.0)):
 			continue
 		var pickup: Node = scene.instantiate()
-		host.add_child(pickup)
+
+		# Placed and configured before entering the tree, per the project's
+		# entity rule. `global_position` is meaningless outside the tree, so the
+		# drop point is resolved into the host's local space by hand.
+		var where: Vector2 = global_position + Vector2(randf_range(-6.0, 6.0), -8.0)
+		var host_2d := host as Node2D
 		if pickup is Node2D:
-			(pickup as Node2D).global_position = global_position + Vector2(
-				randf_range(-6.0, 6.0), -8.0)
+			(pickup as Node2D).position = host_2d.to_local(where) if host_2d != null else where
 		if pickup.has_method("configure"):
 			pickup.configure(String(drop.get("item", "heart")))
+
+		# Deferred, not direct. This runs from `died`, which is emitted out of
+		# `Hurtbox.receive_hit` while the physics server is flushing queries, and
+		# a Pickup is an Area2D — inserting one there is refused with
+		# "Can't change this state while flushing queries" and the drop is lost.
+		host.add_child.call_deferred(pickup)
 
 
 func _spawn_effect(effect_name: String, at: Vector2) -> void:

@@ -2,6 +2,7 @@
   "id": "chapel_landing",
   "name": "Chapel Landing",
   "music": "explore",
+  "ambient": "moonlit",
   "map": {
     "x": 3,
     "y": 3,

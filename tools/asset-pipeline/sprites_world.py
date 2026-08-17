@@ -650,6 +650,23 @@ ARROW_GLYPH = [
 ]
 
 
+def _pressed_variant(base: Canvas) -> Canvas:
+    """Lit-up copy of a button plate for its pressed state.
+
+    A touch button with no pressed texture gives the player no confirmation that
+    the tap registered, which on a laggy touchscreen is indistinguishable from a
+    dropped input. Recolouring rather than offsetting keeps the hit area exactly
+    where the thumb expects it.
+    """
+    return base.recolored({
+        "d": "C",   # plate darkest -> mid
+        "C": "c",   # plate mid     -> light
+        "c": "G",   # plate edge    -> gold
+        "#": "Y",   # glyph white   -> warm highlight
+        "-": "G",
+    })
+
+
 def build_ui() -> dict[str, Canvas]:
     """Discrete UI images, saved as individual PNGs rather than an atlas."""
     out: dict[str, Canvas] = {}
@@ -717,6 +734,11 @@ def build_ui() -> dict[str, Canvas]:
     save_cell.rect(1, 1, 10, 8, "i")
     save_cell.rect(4, 3, 7, 6, "G")
     out["map_save"] = save_cell
+
+    # A pressed variant for every interactive control.
+    for name in list(out.keys()):
+        if name.startswith("btn_") or name.startswith("dpad_"):
+            out[name + "_pressed"] = _pressed_variant(out[name])
 
     # Application icon — the crimson moon over a castle silhouette.
     icon = Canvas(64, 64)

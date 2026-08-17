@@ -120,6 +120,38 @@ slice. Resolution options, in preference order:
 
 Do not resolve this by degrading the hero.
 
+### 4.4 Imported but not yet wired
+
+Tracked deliberately — these are available and unused, not forgotten:
+
+| Asset | Why it is still unused |
+|---|---|
+| `nega_pink_box.png` (49 frames) | A better-animated boss than the generated Sanguine Knight, but a pink box does not fit Castle Vhorn. Needs a recolour pass before it could replace the knight. |
+| `forgotten_forest_example_tileset.png` | A full 64x32 tile forest set. Wrong biome for a castle; a candidate if an outdoor wing is added. |
+| `props_destructible.png` | No breakable-prop system exists yet. The `brick_cracked` tile is the matching gap. |
+| `door_and_switch.png` | Doors are currently invisible triggers. Wiring this is the highest-value remaining art task. |
+| `light_stream.jpg` | God-rays through the window tiles. Wants an additive-blend `Sprite2D` above the backdrop. |
+| `input_icons.png` | Button prompts, for a control-hints overlay that does not exist. |
+| `ability_icons.png` | 25 icons; the HUD shows abilities as text toasts today. |
+| `boss_effects.png` | Boss telegraph VFX, pending the boss art decision. |
+| `bar_*.png`, `map_*.png`, `dpad_base`, `btn_map` | Superseded by `ColorRect` bars and the `_draw()` map, which render identically and cost less. Candidates for deletion. |
+
+**Rejected on purpose:** the pack's `metroidvania_logo.png` is a 24-frame animated
+*"METROIDVANIA FORGE"* wordmark — the asset pack's own branding. It was briefly
+on the title screen, stretched flat across the header, which was both a rendering
+bug and someone else's trademark. Removed from the title screen, from the
+importer and from `assets/`; the game uses its own title set in Alagard.
+
+**Recoloured on import:** `save_point.png` ships as a bright magenta pod. The
+silhouette works as a sarcophagus, but at 0.73 saturation it was the single most
+saturated object in the castle and read as a power-up rather than a place to
+rest. `import_save_point()` collapses the magenta family (hue 280°–20°, sat
+≥ 0.20) onto the castle violet at 270°, scaling saturation to 45% and value to
+82%; the stone greys and the specular highlight are outside that window and pass
+through untouched. The result sits at sat 0.19–0.33, inside the palette. It is
+also drawn at `z_index = -1`: the coffin is 96x80 against a 56px character, so in
+front it swallowed the player from the knees down.
+
 ## 5. Animation standards
 
 | Animation | Frames | FPS | Loop |

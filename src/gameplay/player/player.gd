@@ -107,6 +107,11 @@ func _ready() -> void:
 	_position_whip()
 	_add_lantern()
 
+	# Last, once every `@onready` reference above is live. Entering the first
+	# state calls straight back into this node to set an animation, so the
+	# machine cannot be allowed to start itself during its own `_ready`.
+	state_machine.start()
+
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)

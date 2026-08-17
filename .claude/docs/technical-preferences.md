@@ -48,7 +48,7 @@
   under assertion; every room built in an integration test.
 - **Required Tests**: Balance formulas, progression curve, health component,
   room graph integrity, tileset collision.
-- **Current status**: 95 tests / 1067 assertions, all passing.
+- **Current status**: 120 tests / 1377 assertions, all passing.
 
 ## Forbidden Patterns
 
@@ -60,6 +60,12 @@
 - Static singletons for mutable gameplay state
 - Configuring exported properties *after* `add_child()`
 - Branching on input method in gameplay code
+- Writing `monitoring` / `monitorable`, or adding an `Area2D` to the tree, from
+  inside a collision callback — the physics server is flushing queries there and
+  drops the change with "Can't change this state while flushing queries". Use
+  `set_deferred` / `add_child.call_deferred`.
+- A child node calling back into its parent during its own `_ready`. Godot
+  readies children first, so every `@onready` on the parent is still null.
 
 ## Allowed Libraries / Addons
 

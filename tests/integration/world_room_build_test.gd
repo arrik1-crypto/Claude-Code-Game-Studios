@@ -38,6 +38,21 @@ func _build(room_id: String) -> Room:
 	return room
 
 
+## Read a room's raw JSON, for tests that compare declared content against what
+## the builder actually produced.
+func _load_room(room_id: String) -> Dictionary:
+	var path: String = "res://assets/data/rooms/room_%s.json" % room_id
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var text: String = file.get_as_text()
+	file.close()
+	var parser: JSON = JSON.new()
+	if parser.parse(text) != OK or typeof(parser.data) != TYPE_DICTIONARY:
+		return {}
+	return parser.data
+
+
 func _room_ids() -> PackedStringArray:
 	var ids: PackedStringArray = []
 	for room_id: String in RoomIndex.all():
@@ -163,6 +178,44 @@ func test_collected_relic_renders_as_taken_and_cannot_be_regranted() -> void:
 			"a collected relic must not be collectable a second time")
 
 
+func test_taking_a_relic_at_runtime_grants_the_ability_and_closes_the_plinth() -> void:
+	# The test above covers the *build-time* path — a relic rebuilt from a saved
+	# flag. This one drives the collision callback the player actually triggers,
+	# which is a different code path and the one that was broken: disabling an
+	# Area2D's `monitoring` from inside `body_entered` is refused by the physics
+	# server, so the relic stayed live after being collected.
+	var room: Room = _build("vault_twin_step")
+	var relic: RelicPedestal = _first_relic(room)
+	assert_not_null(relic, "the Twin Step relic must be present on a fresh run")
+	if relic == null:
+		return
+
+	assert_false(GameState.has_ability(relic.relic_id),
+		"the ability is not held before the relic is taken")
+
+	relic._on_body_entered(_a_player())
+
+	assert_true(GameState.get_flag(relic.flag), "taking a relic must set its flag")
+	assert_true(GameState.has_ability(relic.relic_id),
+		"taking the Twin Step relic must grant the double jump")
+
+	# `monitoring` is turned off deferred and so cannot be observed inside this
+	# frame. The guard that actually prevents a second grant is `_taken`, and
+	# that is what a repeated touch must respect — walking back through a looted
+	# plinth must not re-fire the pickup.
+	assert_true(relic._taken, "the plinth must record itself as looted")
+	relic._on_body_entered(_a_player())
+	assert_eq(GameState.unlocked_abilities.size(), 1,
+		"touching a looted plinth again must not grant a second ability")
+
+
+func _a_player() -> Player:
+	var scene: PackedScene = load("res://src/gameplay/player/player.tscn") as PackedScene
+	var player: Player = scene.instantiate() as Player
+	_host.add_child(player)
+	return player
+
+
 func _first_relic(room: Room) -> RelicPedestal:
 	if room == null:
 		return null
@@ -197,6 +250,43 @@ func test_building_a_room_marks_it_discovered() -> void:
 	_build("bat_gallery")
 	assert_true(GameState.is_room_discovered("bat_gallery"),
 		"entering a room reveals it on the map")
+
+
+func test_every_placed_entity_actually_instantiates() -> void:
+	# A script with a parse error still lets its room build — the scene simply
+	# fails to instantiate and the entity is silently absent. Counting nodes
+	# against the room data is what catches that; a broken SavePoint script
+	# passed every other suite in this file.
+	for room_id: String in _room_ids():
+		var data: Dictionary = _load_room(room_id)
+		var expected: int = 0
+		for entry: Variant in (data.get("entities", []) as Array):
+			var spec: Dictionary = entry as Dictionary
+			var skip_flag: String = String(spec.get("skipIfFlag", ""))
+			if skip_flag != "" and GameState.get_flag(skip_flag):
+				continue
+			expected += 1
+		expected += (data.get("doors", []) as Array).size()
+
+		var room: Room = _build(room_id)
+		if room == null:
+			continue
+		var actual: int = room.entities.get_child_count()
+		var message: String = "%s declares %d entities+doors but instantiated %d; a scene or script for one of them failed to load" % [room_id, expected, actual]
+		assert_eq(actual, expected, message)
+
+
+func test_save_points_instantiate_in_both_save_rooms() -> void:
+	for room_id: String in ["chapel_landing", "boss_approach"]:
+		var room: Room = _build(room_id)
+		assert_not_null(room, "%s must build" % room_id)
+		if room == null:
+			continue
+		var found: int = 0
+		for child: Node in room.entities.get_children():
+			if child is SavePoint:
+				found += 1
+		assert_eq(found, 1, "%s must contain exactly one save coffin" % room_id)
 
 
 func test_medusa_gauntlet_has_a_mist_gate() -> void:

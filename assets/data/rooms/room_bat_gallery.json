@@ -2,6 +2,7 @@
   "id": "bat_gallery",
   "name": "The Bat Gallery",
   "music": "explore",
+  "ambient": "moonlit",
   "map": {
     "x": 4,
     "y": 3,

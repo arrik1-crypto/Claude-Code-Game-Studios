@@ -21,8 +21,10 @@ with dynamic lighting, parallax and a full VFX layer.
 | Check | Command | Result |
 |---|---|---|
 | Room data | `python3 tools/ci/validate_rooms.py` | 11 rooms, 0 errors |
-| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 109 tests / 1173 assertions, all pass |
-| Runtime smoke + screenshots | `xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/debug/capture_scene.tscn -- --out=/tmp/shots` | PASS, 17 screenshots |
+| Unit + integration | `godot --headless --path . res://tests/test_runner.tscn` | 120 tests / 1377 assertions, all pass |
+| Runtime smoke + screenshots | `xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/debug/capture_scene.tscn -- --out=/tmp/shots` | PASS, 17 screenshots, zero engine errors |
+| Title screen | same, with `-- --title` | PASS |
+| Save room | same, with `-- --room=chapel_landing --door=save` | PASS |
 
 Evidence: `production/qa/evidence/2026-08-17-graphics-upgrade/`.
 
@@ -92,3 +94,44 @@ combo step, jump/land/run dust, impact rings, mist trails, blood.
 2. Extend the capture harness to walk the whole critical path.
 3. Wire `light_stream.jpg` as god-rays through the window tiles.
 4. Add the shop to give gold a sink.
+
+
+## Correctness pass (post-capture)
+
+Reviewing the captured evidence turned up four defects that every green gate had
+missed. Each is fixed, and each now has a test that fails without the fix.
+
+| Defect | Consequence | Caught by |
+|---|---|---|
+| `parallax_backdrop.gd` assigned `modulate` on a `ParallaxBackground` (a `CanvasLayer`, which has none) | The script never compiled, and took `world.gd` down with it. The backdrop had **never rendered** — the room's background tile layer was standing in for it. Shipped in `b7395da`. | `tests/unit/core/source_compilation_test.gd` |
+| `StateMachine` entered its first state during its own `_ready` | Godot readies children before parents, so `Player.sprite` was still null. Threw on **every spawn**; the idle animation never played until the next transition covered it. | `tests/integration/player_spawn_test.gd` |
+| `RelicPedestal` wrote `monitoring = false` from inside `body_entered` | Refused by the physics server while flushing queries, so a collected relic kept its collision live. | `test_taking_a_relic_at_runtime_...` |
+| `enemy_base._spawn_drops` added an `Area2D` pickup to the tree from inside the death callback | Same refusal; also configured the node *after* `add_child`, which this project forbids. | capture run is now error-free |
+
+Two gates were themselves at fault and were hardened:
+
+- **The test runner** silently skipped suites that failed to load and still
+  reported PASS with a *lower* test count.
+- **The capture harness** reported PASS while `world.gd` was failing to compile,
+  because a script error is an engine error, not a harness error. It now asserts
+  the World has a script and the backdrop resolved.
+
+The harness also gained `--title` and `--room=`/`--door=`, without which the
+title screen and both save rooms could not be photographed at all.
+
+## Art corrections
+
+- `save_point.png` recoloured on import from magenta (sat 0.73) to the castle
+  violet (sat 0.19–0.33), and pushed to `z_index = -1` so it stops swallowing the
+  player from the knees down.
+- `medusa_gauntlet` ambient `default` → `dark`; it was a brightness pop between
+  two dark rooms on the descent to the boss.
+- Orphans removed: `assets/art/ui/logo.png` (the pack's own wordmark, already
+  rejected from the title screen) and `assets/art/vfx/weapon_smears.png`.
+
+## Known gaps
+
+Unchanged from the graphics pass and tracked in `design/art-bible.md` §4.4: 22
+doors are still invisible triggers (highest-value remaining art task), and the
+extra vertical room space from the 40x18 → 40x24 regrow is unused headroom rather
+than designed layout.

@@ -2,6 +2,7 @@
   "id": "west_corridor",
   "name": "Servants' Corridor",
   "music": "explore",
+  "ambient": "default",
   "map": {
     "x": 2,
     "y": 3,

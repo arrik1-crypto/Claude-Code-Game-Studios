@@ -13,6 +13,14 @@ const PLAYER_SCENE: String = "res://src/gameplay/player/player.tscn"
 ## than the viewport still centres nicely.
 const CAMERA_MARGIN: float = 0.0
 
+## Camera lead, in pixels. Scaled for the 56px character: the camera should show
+## roughly half a body ahead of where the player is facing.
+const LOOK_AHEAD_X: float = 28.0
+const LOOK_AHEAD_Y: float = -28.0
+
+## Per-frame lerp weight towards the look-ahead target.
+const CAMERA_FOLLOW_WEIGHT: float = 0.14
+
 @onready var room_host: Node2D = $RoomHost
 @onready var camera: Camera2D = $Camera2D
 @onready var backdrop: ParallaxBackdrop = $Backdrop
@@ -125,10 +133,15 @@ func _process(delta: float) -> void:
 func _follow_player() -> void:
 	if player == null or not is_instance_valid(player):
 		return
-	# Lead the camera slightly towards the look-ahead point rather than locking
-	# to the player, which keeps more of the room ahead of them on screen.
-	var target: Vector2 = player.global_position + Vector2(float(player.facing) * 14.0, -16.0)
-	camera.global_position = camera.global_position.lerp(target, 0.12)
+	# Lead the camera towards a look-ahead point rather than locking to the
+	# player, which keeps more of the room ahead of them on screen.
+	#
+	# This is the ONLY smoothing in play. The Camera2D's own
+	# `position_smoothing` used to be enabled as well, and the two compounded
+	# into a camera that lagged noticeably behind fast movement.
+	var target: Vector2 = player.global_position \
+		+ Vector2(float(player.facing) * LOOK_AHEAD_X, LOOK_AHEAD_Y)
+	camera.global_position = camera.global_position.lerp(target, CAMERA_FOLLOW_WEIGHT)
 
 
 func _on_shake_requested(strength: float, duration: float) -> void:

@@ -14,8 +14,7 @@ script = ExtResource("1_world")
 [node name="RoomHost" type="Node2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position_smoothing_enabled = true
-position_smoothing_speed = 8.0
+limit_smoothed = true
 
 [node name="HUD" parent="." instance=ExtResource("2_hud")]
 

@@ -59,7 +59,14 @@ func _ready() -> void:
 		_show_as_taken()
 
 
-func _show_as_taken() -> void:
+## Render the plinth as already looted.
+##
+## [param during_collision] must be true when this is reached from
+## `body_entered`. Area2D refuses a direct `monitoring` write while the physics
+## server is flushing queries — it logs "Can't change this state while flushing
+## queries" and drops the assignment — so the relic the player just picked up
+## would keep its collision active for the rest of the room's life.
+func _show_as_taken(during_collision: bool = false) -> void:
 	_taken = true
 	# Keep the pedestal, lose the relic: the empty plinth is a landmark the
 	# player can use to orient themselves on a return visit.
@@ -70,7 +77,10 @@ func _show_as_taken() -> void:
 		light.queue_free()
 		light = null
 	set_process(false)
-	monitoring = false
+	if during_collision:
+		set_deferred("monitoring", false)
+	else:
+		monitoring = false
 
 
 ## Slow breathing pulse on the relic glow, so it reads as alive rather than
@@ -103,4 +113,4 @@ func _take(player: Player) -> void:
 	AudioDirector.play_sfx("level_up")
 	EventBus.toast_requested.emit("%s acquired" % display_name)
 	player.spawn_vfx("soul", global_position + Vector2(0, -12))
-	_show_as_taken()
+	_show_as_taken(true)

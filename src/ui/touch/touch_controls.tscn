@@ -1,15 +1,24 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://src/ui/touch/touch_controls.gd" id="1_touch"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/dpad_up.png" id="2_up"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/dpad_up_pressed.png" id="11_dpad_up_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/dpad_down.png" id="3_down"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/dpad_down_pressed.png" id="12_dpad_down_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/dpad_left.png" id="4_left"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/dpad_left_pressed.png" id="13_dpad_left_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/dpad_right.png" id="5_right"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/dpad_right_pressed.png" id="14_dpad_right_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_attack.png" id="6_attack"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_attack_pressed.png" id="15_btn_attack_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_jump.png" id="7_jump"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_jump_pressed.png" id="16_btn_jump_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_subweapon.png" id="8_sub"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_subweapon_pressed.png" id="17_btn_subweapon_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_dash.png" id="9_dash"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_dash_pressed.png" id="18_btn_dash_p"]
 [ext_resource type="Texture2D" path="res://assets/art/ui/btn_pause.png" id="10_pause"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/btn_pause_pressed.png" id="19_btn_pause_p"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dpad"]
 size = Vector2(24, 24)
@@ -29,6 +38,7 @@ script = ExtResource("1_touch")
 [node name="DpadUp" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(44, 178)
 texture_normal = ExtResource("2_up")
+texture_pressed = ExtResource("11_dpad_up_p")
 shape = SubResource("RectangleShape2D_dpad")
 passby_press = true
 action = "move_up"
@@ -36,6 +46,7 @@ action = "move_up"
 [node name="DpadLeft" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(20, 202)
 texture_normal = ExtResource("4_left")
+texture_pressed = ExtResource("13_dpad_left_p")
 shape = SubResource("RectangleShape2D_dpad")
 passby_press = true
 action = "move_left"
@@ -43,6 +54,7 @@ action = "move_left"
 [node name="DpadRight" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(68, 202)
 texture_normal = ExtResource("5_right")
+texture_pressed = ExtResource("14_dpad_right_p")
 shape = SubResource("RectangleShape2D_dpad")
 passby_press = true
 action = "move_right"
@@ -50,6 +62,7 @@ action = "move_right"
 [node name="DpadDown" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(44, 226)
 texture_normal = ExtResource("3_down")
+texture_pressed = ExtResource("12_dpad_down_p")
 shape = SubResource("RectangleShape2D_dpad")
 passby_press = true
 action = "move_down"
@@ -57,29 +70,34 @@ action = "move_down"
 [node name="BtnJump" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(404, 200)
 texture_normal = ExtResource("7_jump")
+texture_pressed = ExtResource("16_btn_jump_p")
 shape = SubResource("RectangleShape2D_big")
 action = "jump"
 
 [node name="BtnAttack" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(356, 212)
 texture_normal = ExtResource("6_attack")
+texture_pressed = ExtResource("15_btn_attack_p")
 shape = SubResource("RectangleShape2D_big")
 action = "attack"
 
 [node name="BtnDash" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(360, 172)
 texture_normal = ExtResource("9_dash")
+texture_pressed = ExtResource("18_btn_dash_p")
 shape = SubResource("RectangleShape2D_small")
 action = "dash"
 
 [node name="BtnSubweapon" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(412, 156)
 texture_normal = ExtResource("8_sub")
+texture_pressed = ExtResource("17_btn_subweapon_p")
 shape = SubResource("RectangleShape2D_small")
 action = "subweapon"
 
 [node name="BtnPause" type="TouchScreenButton" parent="Buttons"]
 position = Vector2(448, 8)
 texture_normal = ExtResource("10_pause")
+texture_pressed = ExtResource("19_btn_pause_p")
 shape = SubResource("RectangleShape2D_dpad")
 action = "pause"

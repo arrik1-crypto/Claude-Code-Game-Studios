@@ -24,6 +24,7 @@ Transformations applied, and why:
 from __future__ import annotations
 
 import argparse
+import colorsys
 import json
 import shutil
 import sys
@@ -127,13 +128,10 @@ HEART_ANIMATIONS: dict[str, tuple[int, int, float, bool]] = {
 ABILITY_ICON_FRAME = (32, 32)
 
 SPRITE_COPIES: dict[str, str] = {
-    "ch_03_game_systems/sprites/metroidvania_logo.png": "ui/logo.png",
     "ch_03_game_systems/sprites/health_bar_frame.png": "ui/health_bar_frame.png",
     "ch_03_game_systems/sprites/input_icons.png": "ui/input_icons.png",
-    "ch_03_game_systems/sprites/save_point.png": "props/save_point.png",
     "ch_05_enemies/sprites/heart.png": "props/heart_pickup.png",
     "ch_04_player_abilities/sprites/dust_effects.png": "vfx/dust.png",
-    "ch_04_player_abilities/sprites/weapon_smears.png": "vfx/weapon_smears.png",
     "ch_04_player_abilities/sprites/abilities.png": "ui/ability_icons.png",
     "ch_06_boss_battles/sprites/pink_box_effects.png": "vfx/boss_effects.png",
 }
@@ -262,6 +260,64 @@ def import_ability_icons(pack: Path) -> None:
     print(f"  ability_icons.png {image.size} ({columns * rows} icons)")
 
 
+# The pack's save point is a bright magenta pod. Its silhouette works as a
+# sarcophagus, but the hue is from a different game — dropped into Castle Vhorn
+# it is the single most saturated thing on screen and reads as a power-up, not a
+# place to rest. Only the pink family is moved; the stone greys and the specular
+# highlight are the parts that already fit and are left exactly as they are.
+SAVE_POINT_SRC = "ch_03_game_systems/sprites/save_point.png"
+SAVE_POINT_DEST = "props/save_point.png"
+
+## Hue window treated as "pink/magenta", in degrees. Wraps through 360.
+PINK_HUE_RANGE = (280.0, 20.0)
+## Colours below this saturation are structural greys and are never touched.
+PINK_MIN_SATURATION = 0.20
+## Everything in the window collapses onto this hue — the castle's deep violet.
+GOTHIC_HUE = 270.0
+GOTHIC_SATURATION_SCALE = 0.45
+GOTHIC_VALUE_SCALE = 0.82
+
+
+def _is_pink(hue: float, saturation: float) -> bool:
+    if saturation < PINK_MIN_SATURATION:
+        return False
+    low, high = PINK_HUE_RANGE
+    return hue >= low or hue <= high
+
+
+def import_save_point(pack: Path) -> None:
+    """Copy the save point, recoloured from magenta into the gothic palette."""
+    src = pack / SAVE_POINT_SRC
+    if not src.exists():
+        print(f"  MISSING {SAVE_POINT_SRC}")
+        return
+
+    image = Image.open(src).convert("RGBA")
+    pixels = list(image.getdata())
+    out: list[tuple[int, int, int, int]] = []
+    moved = 0
+    for r, g, b, a in pixels:
+        if a == 0:
+            out.append((r, g, b, a))
+            continue
+        h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+        if not _is_pink(h * 360.0, s):
+            out.append((r, g, b, a))
+            continue
+        nr, ng, nb = colorsys.hsv_to_rgb(
+            GOTHIC_HUE / 360.0,
+            min(1.0, s * GOTHIC_SATURATION_SCALE),
+            min(1.0, v * GOTHIC_VALUE_SCALE))
+        out.append((round(nr * 255), round(ng * 255), round(nb * 255), a))
+        moved += 1
+
+    image.putdata(out)
+    dest = ART / SAVE_POINT_DEST
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    image.save(dest)
+    print(f"  {dest.relative_to(REPO_ROOT)}  ({moved} px recoloured)")
+
+
 def copy_files(pack: Path, mapping: dict[str, str], root: Path, label: str) -> None:
     print(f"{label}:")
     for src_rel, dest_rel in mapping.items():
@@ -298,6 +354,8 @@ def main() -> int:
     import_dust(pack)
     import_smears(pack)
     copy_files(pack, SPRITE_COPIES, ART, "sprites")
+    print("props:")
+    import_save_point(pack)
     copy_files(pack, AUDIO_MAP, AUDIO, "audio")
     copy_files(pack, FONT_COPIES, FONTS, "fonts")
     print("done.")

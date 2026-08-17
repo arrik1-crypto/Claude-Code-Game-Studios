@@ -69,13 +69,25 @@ func _discover(root: String) -> PackedStringArray:
 
 
 func _run_suite(path: String) -> void:
+	var suite_name: String = path.get_file().trim_suffix(".gd")
+
 	var script: GDScript = load(path) as GDScript
 	if script == null:
 		_failed += 1
 		_failures.append("%s: could not be loaded" % path)
+		print("\n%s\n  FAIL  <suite failed to load>" % suite_name)
 		return
 
-	var suite_name: String = path.get_file().trim_suffix(".gd")
+	# A script with a parse error still loads as a GDScript object; it just
+	# cannot be instantiated. Without this check the runner skipped the whole
+	# suite and reported a *lower* test count as a pass, which is exactly the
+	# kind of silent hole a test runner must not have.
+	if not script.can_instantiate():
+		_failed += 1
+		_failures.append("%s: has a parse error and cannot be instantiated" % path)
+		print("\n%s\n  FAIL  <parse error — suite did not run>" % suite_name)
+		return
+
 	print("\n%s" % suite_name)
 
 	# One instance per test method keeps state from leaking between tests, which

@@ -82,7 +82,7 @@ func try_jump() -> bool:
 
 ## Start an attack if the button was pressed. Returns true on transition.
 func try_attack() -> bool:
-	if not Input.is_action_just_pressed(&"attack"):
+	if not player.just_pressed(&"attack"):
 		return false
 	if player.is_on_floor():
 		state_machine.transition_to(&"Attack", {"step": 0})
@@ -94,14 +94,14 @@ func try_attack() -> bool:
 ## Throw the equipped sub-weapon if the button was pressed and hearts allow.
 ## Does not change state — sub-weapons are usable from most states.
 func try_subweapon() -> bool:
-	if not Input.is_action_just_pressed(&"subweapon"):
+	if not player.just_pressed(&"subweapon"):
 		return false
 	return player.throw_subweapon()
 
 
 ## Start a dash: mist dash if unlocked, backdash otherwise.
 func try_dash() -> bool:
-	if not Input.is_action_just_pressed(&"dash"):
+	if not player.just_pressed(&"dash"):
 		return false
 	if GameState.has_ability(GameState.ABILITY_MIST_DASH) and player.can_mist_dash():
 		state_machine.transition_to(&"MistDash", {})

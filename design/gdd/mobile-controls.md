@@ -26,15 +26,15 @@ reads as the game being generous rather than the screen being unresponsive.
 
 | Action | Keyboard | Gamepad | Touch |
 |---|---|---|---|
-| `move_left` / `move_right` | ← → / A D | Left stick X | D-pad left/right |
-| `move_up` / `move_down` | ↑ ↓ / W S | Left stick Y | D-pad up/down |
+| `move_left` / `move_right` | ← → / A D | Left stick X | Stick X (analog) |
+| `move_up` / `move_down` | ↑ ↓ / W S | Left stick Y | Stick Y (past a threshold) |
 | `jump` | Space, C | A | Large button, bottom-right |
 | `attack` | X | X | Large button, left of jump |
 | `subweapon` | Z | Y | Small button, upper right |
 | `dash` | Shift | B | Small button, upper right |
-| `interact` | ↑ | Y | D-pad up (doubles) |
+| `interact` | ↑ | Y | Stick up (doubles) |
 | `pause` | Esc | Start | Small button, top-right corner |
-| `map_screen` | Tab | L1 | — (via pause) |
+| `map_screen` | Tab | L1 | Button, top-right |
 
 ### 3.2 Layout
 
@@ -54,14 +54,27 @@ Landscape, 480×270 reference viewport:
  └──────────────────────────────────────────────────────┘
 ```
 
-- **Left thumb**: four-way d-pad. Discrete buttons rather than a virtual stick —
-  a platformer needs unambiguous left/right, and an analogue stick under a thumb
-  produces accidental diagonals.
+- **Left thumb**: a circular analog stick. **This reverses the original design.**
+  The first version used a four-way d-pad, on the reasoning that "a platformer
+  needs unambiguous left/right, and an analogue stick under a thumb produces
+  accidental diagonals". Playing the APK on a real phone showed the reasoning was
+  sound but the execution was not: each arrow measured ~6.1 mm — two thirds of
+  the ~9 mm minimum — and the four arrows tiled around a **dead centre cell**, so
+  a thumb resting in the middle of the pad registered nothing at all.
+
+  The stick is one continuous ~18 mm target with no dead centre. The diagonal
+  concern is answered by a deadzone plus an axis-dominance rule (see
+  `VirtualStick.VERTICAL_DOMINANCE`): vertical input is ignored unless it clearly
+  beats horizontal, so pushing diagonally while running never crouches you.
+
+  Horizontal movement is now genuinely **analog** — the stick presses the move
+  actions with a strength and the player reads them through `Input.get_axis`, so
+  a small tilt walks and a full tilt runs. No gameplay code changed to gain this.
 - **Right thumb**: attack and jump are the largest targets and sit closest to the
   corner where the thumb rests. Dash and sub-weapon are smaller and higher, since
   they are used deliberately rather than reflexively.
-- **`passby_press`** is enabled on the d-pad, so sliding a thumb from left to
-  right registers without lifting.
+- The stick claims a touch index, so a second finger on attack or jump can never
+  steal or cancel movement.
 - The HUD occupies the top-left, away from both thumbs.
 
 ### 3.3 Input forgiveness

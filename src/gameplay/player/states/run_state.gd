@@ -20,7 +20,7 @@ func physics_update(delta: float) -> void:
 	if try_fall_off_ledge():
 		return
 
-	if Input.is_action_pressed(&"move_down"):
+	if player.wants(&"move_down"):
 		state_machine.transition_to(&"Crouch", {})
 		return
 	# Fall back to Idle only once the character has actually stopped, so a quick

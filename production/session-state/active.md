@@ -6,7 +6,7 @@
 <!-- STATUS -->
 Epic: Vertical Slice
 Feature: Graphics upgrade
-Task: Android APK built and verified
+Task: device feedback round 1
 <!-- /STATUS -->
 
 ## What exists
@@ -212,3 +212,55 @@ The APK targets SDK 35. Google Play requires 36 for new apps and updates from
 31 August 2026. Raising it needs `gradle_build/use_gradle_build=true`, which
 needs the real Android SDK — unavailable here, since `dl.google.com` is blocked
 by egress policy. Sideloading is unaffected; this only blocks a Play submission.
+
+
+## Device feedback, round 1
+
+First real playtest on a phone. Four reports, all fixed.
+
+**1. Dying froze the game — blocking.** Two independent causes, both in the same
+six lines:
+
+- `Player._on_died` cleared `_control_enabled` and *then* queued the Dead
+  transition. The queue is drained inside `physics_update`, which was itself
+  gated on `_control_enabled`, so Dead was never entered and
+  `SceneDirector.game_over()` — reachable only from DeadState — never ran.
+- Fixing that alone was not enough: `transition_to` queues, and the *current*
+  state's update runs first and overwrites `_pending`. Idle saw no floor under
+  the corpse and replaced Dead with Fall.
+
+Fixes: the state machine now always ticks (control gates *input*, via new
+`Player.wants()` / `just_pressed()` chokepoints that every state reads through),
+and death uses a new `StateMachine.transition_now()`. A watchdog on
+`EventBus.player_died` forces game over if the normal path ever stalls again, so
+this class of bug can no longer strand the player.
+
+Alongside: the pause menu gained real **Resume** and **Quit to Title** buttons —
+it was label-only, so a touch player had no way to leave a run; `respawn_at_save`
+gained the `_busy` guard the other transitions already had; `GameOverScreen` now
+declares `PROCESS_MODE_ALWAYS` instead of surviving on statement ordering; and
+`emulate_mouse_from_touch` is pinned, since every Button depends on it.
+
+**2. Controls far too small.** Measured: 8 of 10 were under the ~9 mm minimum,
+the d-pad arrows worst at 6.1 mm — and the four arrows tiled around a **dead
+centre cell**. Replaced with a hand-built `VirtualStick` (~18 mm, no dead zone,
+analog horizontal for free) and every remaining button raised past 9 mm. See
+ADR-008; this reverses the GDD's original d-pad decision.
+
+**3. Map had no detail.** `RoomIndex` kept only name and cell, so the map
+*could not* see doors or entities. Widened it (still no tile grids). The map now
+draws connections — including the link from the lower corridor up to the
+clocktower, previously invisible — plus relics by collection state, save coffins,
+the boss and the gate, and adjacent unexplored rooms. `SAVE_ROOMS` was hardcoded
+and is now derived from the room data.
+
+**4. Whip reach too short.** 44 → 54 (tip 52 → 62px). The boss out-reached the
+starting whip by 28px; a new test keeps his advantage while enforcing a usable
+floor. Also fixed: `_position_whip()` was never called on weapon change, so the
+Chain Whip reward did nothing until the player next turned around.
+
+Tests: 167 / 1532 assertions (was 146 / 1449). `assert_has` silently failed on
+`PackedStringArray` — it now reports rather than returning a false negative.
+
+An `Android arm64` export preset is now tracked, so the ~28 MB device build is
+reproducible instead of hand-made.

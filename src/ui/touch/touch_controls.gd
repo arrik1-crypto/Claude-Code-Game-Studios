@@ -24,8 +24,9 @@ extends CanvasLayer
 ## Accessibility: scale and opacity are adjustable, and the whole layer can be
 ## hidden for players using a gamepad. See design/gdd/mobile-controls.md.
 
-## Pressing the d-pad up also fires `interact`, so a save coffin can be used
-## without a separate button competing for thumb space.
+## Pushing the stick up also fires `interact`, so a save coffin can be used
+## without a separate button competing for thumb space. The stick owns the press;
+## this is listed here so the pause sweep releases it too.
 const UP_ALSO_PRESSES: StringName = &"interact"
 
 ## The frame the scene's button positions are authored against.
@@ -45,7 +46,7 @@ const TOP_ANCHORED: PackedStringArray = ["BtnPause", "BtnMap"]
 ## `PROCESS_MODE_ALWAYS` — it has to, because the button that opens the pause
 ## menu is on this layer, and a `PAUSABLE` touch layer freezes the instant it is
 ## used, leaving a touch-only player with no way to close the menu and no choice
-## but to force-quit and lose the run. Keeping the layer alive means the d-pad
+## but to force-quit and lose the run. Keeping the layer alive means the stick
 ## and attack buttons would otherwise still be pressable over a stopped world.
 const LIVE_WHILE_PAUSED: PackedStringArray = ["BtnPause", "BtnMap"]
 
@@ -57,7 +58,7 @@ const GAMEPLAY_ACTIONS: Array[StringName] = [
 ]
 
 @onready var buttons: Node2D = $Buttons
-@onready var dpad_up: TouchScreenButton = $Buttons/DpadUp
+@onready var stick: VirtualStick = $Buttons/Stick
 
 ## Multiplies the size of every control. Raise for players who need bigger
 ## targets; the layout re-anchors around the screen corners so nothing overlaps.
@@ -78,8 +79,11 @@ const GAMEPLAY_ACTIONS: Array[StringName] = [
 		_apply_appearance()
 
 
-## Authored corner insets, captured once from the scene: button -> inset.
-var _insets: Dictionary[TouchScreenButton, Vector2] = {}
+## Authored corner insets, captured once from the scene: control -> inset.
+##
+## Keyed by [Node2D] rather than [TouchScreenButton] because the movement control
+## is a [VirtualStick], which is not a button.
+var _insets: Dictionary[Node2D, Vector2] = {}
 
 
 ## True while a pause or map overlay is covering the game.
@@ -97,8 +101,6 @@ func _ready() -> void:
 	if not DisplayServer.is_touchscreen_available():
 		controls_visible = false
 
-	dpad_up.pressed.connect(_on_up_pressed)
-	dpad_up.released.connect(_on_up_released)
 	EventBus.overlay_toggled.connect(_on_overlay_toggled)
 
 	_capture_insets()
@@ -115,9 +117,11 @@ func _on_overlay_toggled(is_open: bool) -> void:
 
 ## Drop any action the player was holding when the overlay appeared.
 ##
-## A TouchScreenButton that is hidden mid-press never emits its release, so
-## without this the player resumes with the d-pad still held down.
+## A TouchScreenButton hidden mid-press never emits its release, and the stick
+## stops receiving drags the moment it is hidden, so without this the player
+## resumes still running in whatever direction they were holding.
 func _release_gameplay_actions() -> void:
+	stick.release()
 	for action: StringName in GAMEPLAY_ACTIONS:
 		if InputMap.has_action(action) and Input.is_action_pressed(action):
 			Input.action_release(action)
@@ -129,14 +133,14 @@ func _release_gameplay_actions() -> void:
 ## stays the single place the layout is designed.
 func _capture_insets() -> void:
 	for child: Node in buttons.get_children():
-		var button := child as TouchScreenButton
-		if button == null:
+		var control := child as Node2D
+		if control == null:
 			continue
-		var from_right: bool = RIGHT_ANCHORED.has(button.name)
-		var from_top: bool = TOP_ANCHORED.has(button.name)
-		_insets[button] = Vector2(
-			REFERENCE_SIZE.x - button.position.x if from_right else button.position.x,
-			button.position.y if from_top else REFERENCE_SIZE.y - button.position.y)
+		var from_right: bool = RIGHT_ANCHORED.has(control.name)
+		var from_top: bool = TOP_ANCHORED.has(control.name)
+		_insets[control] = Vector2(
+			REFERENCE_SIZE.x - control.position.x if from_right else control.position.x,
+			control.position.y if from_top else REFERENCE_SIZE.y - control.position.y)
 
 
 ## Where a control sits for a given screen, inset and scale.
@@ -164,25 +168,16 @@ func _apply_appearance() -> void:
 	buttons.scale = Vector2.ONE
 
 	var viewport: Vector2 = get_viewport().get_visible_rect().size
-	for button: TouchScreenButton in _insets:
-		if not is_instance_valid(button):
+	for control: Node2D in _insets:
+		if not is_instance_valid(control):
 			continue
-		# A hidden TouchScreenButton receives no input, which is exactly what
-		# should happen to the d-pad and attack buttons over a frozen world.
-		button.visible = not _overlay_open or LIVE_WHILE_PAUSED.has(button.name)
-		button.scale = Vector2.ONE * control_scale
-		button.position = anchored_position(
-			_insets[button], viewport, control_scale,
-			RIGHT_ANCHORED.has(button.name), TOP_ANCHORED.has(button.name))
-
-
-## The up button doubles as "interact" so pressing up at a coffin rests there.
-func _on_up_pressed() -> void:
-	Input.action_press(UP_ALSO_PRESSES)
-
-
-func _on_up_released() -> void:
-	Input.action_release(UP_ALSO_PRESSES)
+		# A hidden control receives no input, which is exactly what should happen
+		# to the stick and attack buttons over a frozen world.
+		control.visible = not _overlay_open or LIVE_WHILE_PAUSED.has(control.name)
+		control.scale = Vector2.ONE * control_scale
+		control.position = anchored_position(
+			_insets[control], viewport, control_scale,
+			RIGHT_ANCHORED.has(control.name), TOP_ANCHORED.has(control.name))
 
 
 func _exit_tree() -> void:

@@ -219,6 +219,20 @@ func test_boss_is_meaningfully_tougher_than_regular_enemies() -> void:
 	assert_gt(boss_hp, toughest * 4.0, "the boss should be a real wall")
 
 
+## Distance from the player's centre to the near edge of the whip hitbox.
+## `_position_whip` offsets the rect by half its width plus this.
+const WHIP_STANDOFF_PX: float = 8.0
+
+## The character is 38px wide on screen; one tile is 16px.
+const CHARACTER_WIDTH_PX: float = 38.0
+const TILE_PX: float = 16.0
+
+## The starting whip must be usable, not just present. Reported from a device as
+## "range in sword swing needs to increased slightly" — at reach 44 the tip sat
+## 52px out, barely 1.4 body-widths, while the boss's slash reached 80px.
+const MIN_STARTING_REACH_TILES: float = 3.5
+
+
 func test_weapons_upgrade_monotonically() -> void:
 	var leather: Dictionary = Balance.entry("weapons", "leather_whip")
 	var chain: Dictionary = Balance.entry("weapons", "chain_whip")
@@ -226,6 +240,29 @@ func test_weapons_upgrade_monotonically() -> void:
 		"the chain whip must out-damage the starting whip")
 	assert_gt(float(chain["reach"]), float(leather["reach"]),
 		"the chain whip must out-reach the starting whip")
+
+
+func test_the_starting_whip_reaches_far_enough_to_fight_with() -> void:
+	var reach: float = float(Balance.entry("weapons", "leather_whip")["reach"])
+	var tiles: float = (reach + WHIP_STANDOFF_PX) / TILE_PX
+	var message: String = ("the starting whip tip is %.2f tiles from the player; "
+		+ "under %.2f it feels like the enemy has to be inside you") % [
+			tiles, MIN_STARTING_REACH_TILES]
+	assert_ge(tiles, MIN_STARTING_REACH_TILES, message)
+
+
+func test_the_boss_still_out_reaches_the_player() -> void:
+	# The Sanguine Knight's threat is partly that he can hit from further away.
+	# Raising the whip's reach must not quietly erase that.
+	var boss_reach: float = float(
+		Balance.entry("bosses", "sanguine_knight")["slash"]["reach"])
+	# The boss uses a wider standoff than the player: half its width plus 16.
+	var boss_tip: float = boss_reach + 16.0
+	for weapon_id: String in ["leather_whip", "chain_whip"]:
+		var tip: float = float(Balance.entry("weapons", weapon_id)["reach"]) + WHIP_STANDOFF_PX
+		var message: String = ("%s reaches %.0fpx but the boss reaches %.0fpx; "
+			+ "his range advantage is part of the fight") % [weapon_id, tip, boss_tip]
+		assert_lt(tip, boss_tip, message)
 
 
 func test_pickups_all_grant_something() -> void:

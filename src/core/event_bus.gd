@@ -44,6 +44,10 @@ signal ability_unlocked(ability_id: String)
 ## A sub-weapon was picked up and equipped.
 signal subweapon_equipped(subweapon_id: String)
 
+## The main weapon changed. The player listens so it can resize the whip hitbox
+## to the new weapon's reach immediately, rather than on its next turn.
+signal weapon_equipped(weapon_id: String)
+
 # -- World -------------------------------------------------------------------
 
 ## A room finished loading. [param room_id] matches design/levels/room-graph.md.

@@ -60,13 +60,13 @@
     "leather_whip": {
       "displayName": "Leather Whip",
       "attack": 4,
-      "reach": 44,
+      "reach": 54,
       "description": "The Valcourt family whip. Unremarkable, and it has never failed."
     },
     "chain_whip": {
       "displayName": "Chain Whip",
       "attack": 9,
-      "reach": 58,
+      "reach": 68,
       "description": "Iron links replace worn leather. Heavier, and it bites deeper."
     }
   },

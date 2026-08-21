@@ -48,6 +48,11 @@ func _button(controls: TouchControls, name: String) -> TouchScreenButton:
 	return controls.get_node_or_null("Buttons/%s" % name) as TouchScreenButton
 
 
+## Any control on the layer, button or stick.
+func _control(controls: TouchControls, name: String) -> Node2D:
+	return controls.get_node_or_null("Buttons/%s" % name) as Node2D
+
+
 func test_the_touch_layer_keeps_running_while_the_game_is_paused() -> void:
 	# The heart of it. PAUSABLE here is the soft-lock.
 	var controls: TouchControls = _touch_controls()
@@ -85,15 +90,16 @@ func test_the_pause_and_map_buttons_survive_an_open_overlay() -> void:
 
 
 func test_gameplay_buttons_are_withdrawn_while_an_overlay_is_up() -> void:
-	# The flip side: keeping the layer alive must not leave a live d-pad
+	# The flip side: keeping the layer alive must not leave a live stick
 	# hovering over a frozen world.
 	var controls: TouchControls = _touch_controls()
 	EventBus.overlay_toggled.emit(true)
 
-	for name: String in ["DpadLeft", "DpadRight", "BtnJump", "BtnAttack"]:
-		var button: TouchScreenButton = _button(controls, name)
-		if button != null:
-			assert_false(button.visible,
+	for name: String in ["Stick", "BtnJump", "BtnAttack"]:
+		var control: Node2D = _control(controls, name)
+		assert_not_null(control, "%s must exist" % name)
+		if control != null:
+			assert_false(control.visible,
 				"%s must be withdrawn while the game is paused" % name)
 
 
@@ -102,10 +108,10 @@ func test_gameplay_buttons_come_back_when_the_overlay_closes() -> void:
 	EventBus.overlay_toggled.emit(true)
 	EventBus.overlay_toggled.emit(false)
 
-	for name: String in ["DpadLeft", "BtnJump", "BtnAttack"]:
-		var button: TouchScreenButton = _button(controls, name)
-		if button != null:
-			assert_true(button.visible, "%s must return after resuming" % name)
+	for name: String in ["Stick", "BtnJump", "BtnAttack"]:
+		var control: Node2D = _control(controls, name)
+		if control != null:
+			assert_true(control.visible, "%s must return after resuming" % name)
 
 
 func test_no_action_is_left_latched_down_across_a_pause() -> void:

@@ -1,0 +1,32 @@
+Verifying build/android/crimson-vespers-arm64.apk
+
+Signature
+  PASS  apksigner verify  — signature is valid
+  PASS  modern signing scheme  — v1=no, v2=yes, v3=yes, v4=no
+
+Manifest
+  PASS  package name  — com.crimsonvespers.game
+  PASS  version  — code=1 name=0.1.0
+  PASS  sdk range  — min=24 target=35
+  PASS  screen orientation  — userLandscape (11)
+  WARN  permissions  — android.permission.DUMP  (DUMP is added by the DEBUG template and is absent from release builds)
+
+Payload
+  PASS  abi arm64-v8a  — 2 libs incl. the engine
+  PASS  payload  — assets/assets/data/game_balance\.json$
+  PASS  payload  — assets/assets/data/rooms/room_throne_of_ash\.json$
+  PASS  payload  — assets/\.godot/imported/hero\.png-.*\.ctex$
+  PASS  payload  — assets/\.godot/imported/boss\.ogg-.*\.oggvorbisstr$
+  PASS  payload  — assets/\.godot/imported/whip\.wav-.*\.sample$
+  PASS  dev files  — no tests/tools/docs in the package
+  PASS  stale audio  — no uncompressed boss.wav
+
+Size
+  PASS  apk size  — 28.6 MB (budget 80 MB)
+
+==============================================================
+RESULT: PASS — 1 warning(s)
+
+NOT verified here (requires a physical device or emulator):
+  rendering and framerate, touch input, audio playback, save/load
+  against real storage, memory ceiling, and install on a real ABI.

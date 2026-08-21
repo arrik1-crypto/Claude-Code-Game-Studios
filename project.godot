@@ -130,6 +130,15 @@ ui_confirm={
 ]
 }
 
+[input_devices]
+
+; Pinned deliberately rather than left to the engine default. Every Button in
+; the game — the pause menu's Resume and Quit, and Game Over's Retry — is only
+; reachable by touch because touch synthesises mouse events. If anything ever
+; set this false, every menu would become unusable on a phone while still
+; working perfectly on the desktop where it would be tested.
+pointing/emulate_mouse_from_touch=true
+
 [layer_names]
 
 2d_physics/layer_1="world"

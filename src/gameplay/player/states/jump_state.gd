@@ -32,7 +32,7 @@ func physics_update(delta: float) -> void:
 	player.apply_horizontal_movement(delta, false)
 
 	# Variable jump height.
-	if not Input.is_action_pressed(&"jump") and player.velocity.y < 0.0:
+	if not player.wants(&"jump") and player.velocity.y < 0.0:
 		player.velocity.y *= Balance.field(player.move_cfg, "jumpCutMultiplier", 0.42)
 
 	if try_attack() or try_dash():

@@ -48,7 +48,7 @@
   under assertion; every room built in an integration test.
 - **Required Tests**: Balance formulas, progression curve, health component,
   room graph integrity, tileset collision.
-- **Current status**: 146 tests / 1449 assertions, all passing.
+- **Current status**: 167 tests / 1532 assertions, all passing.
 
 ## Forbidden Patterns
 
@@ -79,6 +79,15 @@
   touch-only player must force-quit. Use `PROCESS_MODE_ALWAYS` and hide the
   gameplay buttons on `EventBus.overlay_toggled`.
 - Prompting the player with a key name without checking there is a keyboard.
+- Gating a state machine's update on a "can the player act" flag. Control means
+  the player may *act*; states still have to tick so gravity, timers and the
+  death hand-off keep running. Gate input instead — `Player.wants()` /
+  `just_pressed()` are the chokepoints.
+- Assuming `StateMachine.transition_to` takes effect immediately. It queues, and
+  the current state's next update runs *first* and can overwrite it. Use
+  `transition_now()` from signal handlers.
+- A touch target under ~9 mm on a 1080p phone (40 canvas units at the 480x270
+  reference). Asserted by `ui_touch_anchoring_test.gd`.
 
 ## Allowed Libraries / Addons
 
@@ -95,6 +104,8 @@
 | ADR-004 | Area2D hitbox/hurtbox combat with a layer matrix | Accepted |
 | ADR-005 | Data-driven balance and rooms | Accepted |
 | ADR-006 | Runtime construction of SpriteFrames and TileSet | Accepted |
+| ADR-007 | Rendering and lighting | Accepted |
+| ADR-008 | Touch input scheme (virtual stick) | Accepted |
 
 ## Engine Specialists
 

@@ -100,6 +100,18 @@ func assert_has(container: Variant, key: Variant, message: String = "") -> void:
 		present = (container as Dictionary).has(key)
 	elif container is Array:
 		present = (container as Array).has(key)
+	elif container is PackedStringArray:
+		present = (container as PackedStringArray).has(key)
+	elif container is PackedInt32Array:
+		present = (container as PackedInt32Array).has(key)
+	else:
+		# Silently reporting "not present" for a container type this does not
+		# understand is how a passing-looking test lies. A PackedStringArray is
+		# neither a Dictionary nor an Array, so it used to fall straight through
+		# here and fail no matter what it held.
+		_fail("assert_has cannot inspect a %s — %s"
+			% [type_string(typeof(container)), message])
+		return
 	if not present:
 		_fail("expected to contain %s — %s" % [str(key), message])
 

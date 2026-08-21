@@ -20,6 +20,13 @@ const GAME_OVER_SCENE: String = "res://src/ui/screens/game_over_screen.tscn"
 const FADE_OUT_TIME: float = 0.28
 const FADE_IN_TIME: float = 0.34
 
+## How long after `player_died` the watchdog waits before forcing game over.
+##
+## Comfortably longer than DeadState's own hand-off (its animation plus a 1.1 s
+## hold), so a healthy death sequence always finishes first and the watchdog
+## never fires. See [method _on_player_died].
+const DEATH_WATCHDOG_TIMEOUT: float = 4.0
+
 signal transition_started(room_id: String)
 signal transition_finished(room_id: String)
 
@@ -41,6 +48,30 @@ func _ready() -> void:
 	_fade.modulate.a = 0.0
 	_fade.visible = false
 	add_child(_fade)
+
+	EventBus.player_died.connect(_on_player_died)
+
+
+## Watchdog: guarantee the game-over screen appears after the player dies.
+##
+## The death sequence normally runs through DeadState, which counts down and then
+## calls [method game_over] itself — and that was the *only* path. When a
+## state-machine bug stopped Dead from ever being entered, nothing noticed: the
+## player stood frozen, invulnerable, while the world carried on around them, and
+## the only way out was to kill the app.
+##
+## `player_died` is emitted directly by the player, independently of the state
+## machine, so this cannot be broken by the same class of bug. If the normal path
+## has not reached game over by the deadline, this forces it.
+func _on_player_died() -> void:
+	await get_tree().create_timer(DEATH_WATCHDOG_TIMEOUT, true, false, true).timeout
+	if _busy or get_tree().current_scene == null:
+		return
+	if get_tree().current_scene.scene_file_path == GAME_OVER_SCENE:
+		return
+	push_warning("SceneDirector: death did not reach game over in %.1fs; forcing it."
+		% DEATH_WATCHDOG_TIMEOUT)
+	game_over()
 
 
 ## True while a transition is in flight. Input handlers should ignore actions.
@@ -121,8 +152,17 @@ func game_over() -> void:
 
 
 ## Respawn at the last save point, restoring HP per balance.json.
+##
+## Guarded like [method game_over] and [method travel_to_room]. Without it, two
+## quick taps on "Rise Again" — easy on a phone with a laggy frame — start two
+## concurrent `change_scene_to_file` runs, and `is_busy()` stays false for the
+## whole respawn, defeating the re-entrancy checks in the pause menu.
 func respawn_at_save() -> void:
+	if _busy:
+		return
+	_busy = true
 	if GameState.respawn_room == "":
+		_busy = false
 		await go_to_title()
 		return
 	var fraction: float = Balance.get_float("economy", "respawnHpFraction", 1.0)
@@ -130,6 +170,7 @@ func respawn_at_save() -> void:
 	GameState.current_room = GameState.respawn_room
 	GameState.spawn_door = GameState.respawn_door
 	await _enter_world()
+	_busy = false
 
 
 # -- Room streaming ----------------------------------------------------------

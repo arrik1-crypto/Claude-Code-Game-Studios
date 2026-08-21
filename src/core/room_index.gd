@@ -3,9 +3,15 @@ extends RefCounted
 
 ## A lightweight catalogue of every room in the castle.
 ##
-## Scans `assets/data/rooms/` once and keeps only what the map screen needs —
-## display name and grid cell — rather than the full tile grids. That keeps the
-## map cheap to draw and means opening it never touches the room files again.
+## Scans `assets/data/rooms/` once and keeps only what the map screen needs,
+## rather than the full tile grids. That keeps the map cheap to draw and means
+## opening it never touches the room files again.
+##
+## "What the map needs" was originally just the display name and grid cell, and
+## that narrowing turned out to be too aggressive: the map could not draw the
+## connections between rooms, or mark relics and save points, because it had no
+## access to the data describing them. It now also keeps each room's door targets
+## and a small summary of its landmarks — still no tile grids, still one scan.
 
 const ROOM_DATA_DIR: String = "res://assets/data/rooms"
 
@@ -89,7 +95,73 @@ static func _scan() -> void:
 			"cell": Rect2i(
 				int(map_info.get("x", 0)), int(map_info.get("y", 0)),
 				maxi(1, int(map_info.get("w", 1))), maxi(1, int(map_info.get("h", 1)))),
+			"links": _links_of(data),
+			"marks": _marks_of(data),
 		}
+
+
+## Which rooms this one connects to, and on which side.
+##
+## Kept because the map has to draw connections. Only the ids and directions are
+## retained, never the tile coordinates — the point of this index is still to
+## avoid holding the room grids in memory.
+static func _links_of(data: Dictionary) -> Array[Dictionary]:
+	var links: Array[Dictionary] = []
+	for entry_variant: Variant in (data.get("doors", []) as Array):
+		var door: Dictionary = entry_variant as Dictionary
+		var target: String = String(door.get("to", ""))
+		# An empty target is a save-point respawn anchor, not a way out.
+		if target == "":
+			continue
+		links.append({
+			"to": target,
+			# `dir` is +1 for a door on the west wall, -1 for the east.
+			"side": int(door.get("dir", 1)),
+		})
+	return links
+
+
+## Landmarks worth drawing on a room's chip: save coffins, relics, the boss.
+##
+## `SAVE_ROOMS` used to be a hardcoded list in the map view — a second source of
+## truth that would silently desync the first time a coffin moved, and a straight
+## violation of the project's data-driven rule. This reads it from the room data
+## instead, along with the relic flags so the map can show what is still uncollected.
+static func _marks_of(data: Dictionary) -> Dictionary:
+	var relic_flags: Array[String] = []
+	var has_save: bool = false
+	var has_boss: bool = false
+	var has_gate: bool = false
+
+	for entry_variant: Variant in (data.get("entities", []) as Array):
+		var spec: Dictionary = entry_variant as Dictionary
+		match String(spec.get("type", "")):
+			"save_point":
+				has_save = true
+			"relic":
+				relic_flags.append(String(spec.get("flag", "")))
+			"mist_gate":
+				has_gate = true
+			"sanguine_knight":
+				has_boss = true
+
+	return {
+		"save": has_save,
+		"boss": has_boss,
+		"gate": has_gate,
+		"relicFlags": relic_flags,
+	}
+
+
+## True when the room contains a save coffin.
+static func has_save_point(room_id: String) -> bool:
+	return bool((entry(room_id).get("marks", {}) as Dictionary).get("save", false))
+
+
+## Rooms this room has a door to, with the side each door sits on.
+static func links(room_id: String) -> Array[Dictionary]:
+	var value: Variant = entry(room_id).get("links", [])
+	return value as Array[Dictionary] if value is Array else ([] as Array[Dictionary])
 
 
 ## Force a re-scan. Used by tests.

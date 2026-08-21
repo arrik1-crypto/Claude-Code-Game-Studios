@@ -1,0 +1,2 @@
+66b873efb5ec4ba1b7e0179cadbfffdbbb29155951329bfe0780600a99a13bfa  build/android/crimson-vespers-arm64.apk
+2a514b87979045df4dd5e3439cd3ccc8da53d89f3762937773df92249c6f9fa0  build/android/crimson-vespers.apk

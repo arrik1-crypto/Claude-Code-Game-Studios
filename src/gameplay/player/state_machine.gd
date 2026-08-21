@@ -62,14 +62,36 @@ func start() -> void:
 	current_state.enter({})
 
 
-## Request a transition. Applied at the end of the current physics step, or
-## immediately if called from outside the update loop.
+## Request a transition. Queued, never immediate.
+##
+## The transition is applied at the end of the next `physics_update` or
+## `handle_input`. It is NOT applied on the spot, even when called from outside
+## the update loop — this docstring used to claim otherwise, and that untrue
+## promise is what hid the death freeze: `Player._on_died` queued the Dead
+## transition and then stopped the machine being pumped, so the queue was never
+## drained and the whole death sequence silently never ran.
+##
+## Callers therefore must not assume the state has changed when this returns.
 func transition_to(state_name: StringName, payload: Dictionary = {}) -> void:
 	if not _states.has(state_name):
 		push_error("StateMachine: no state named '%s'" % state_name)
 		return
 	_pending = state_name
 	_pending_payload = payload
+
+
+## Transition immediately, without waiting for the next update.
+##
+## Use this from outside the update loop — a signal handler, most importantly
+## death — where a queued transition is not safe. A queued one is applied *after*
+## the current state's next `physics_update`, and that update runs first and can
+## overwrite `_pending` with a transition of its own. That is exactly how the
+## death freeze survived a partial fix: `Dead` was queued, then the still-running
+## Idle state saw no floor beneath the corpse, queued `Fall` over the top of it,
+## and the player fell forever instead of dying.
+func transition_now(state_name: StringName, payload: Dictionary = {}) -> void:
+	transition_to(state_name, payload)
+	_apply_pending()
 
 
 ## True when [param state_name] is the running state.

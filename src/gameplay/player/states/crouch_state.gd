@@ -45,5 +45,5 @@ func physics_update(delta: float) -> void:
 	if try_fall_off_ledge():
 		return
 
-	if not Input.is_action_pressed(&"move_down"):
+	if not player.wants(&"move_down"):
 		state_machine.transition_to(&"Idle", {})

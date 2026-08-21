@@ -20,6 +20,9 @@ enum Screen { NONE, PAUSED, MAP }
 @onready var map_summary: Label = %MapSummary
 @onready var stats_text: Label = %StatsText
 @onready var hint: Label = %Hint
+@onready var map_hint: Label = %MapHint
+@onready var resume_button: Button = %ResumeButton
+@onready var quit_button: Button = %QuitButton
 
 var _screen: Screen = Screen.NONE
 
@@ -28,7 +31,24 @@ func _ready() -> void:
 	layer = 40
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group(&"pause_menu")
+
+	# Real buttons, not just key hints. Until these existed a touch player had no
+	# way to leave a run at all: the panel is label-only, `ui_confirm` is bound to
+	# Enter and Space, and Back deliberately never quits — so the only exit from a
+	# bad situation was force-quitting the app.
+	resume_button.pressed.connect(_on_resume_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
+
 	_show(Screen.NONE)
+
+
+func _on_resume_pressed() -> void:
+	_show(Screen.NONE)
+
+
+func _on_quit_pressed() -> void:
+	_show(Screen.NONE)
+	SceneDirector.go_to_title()
 
 
 ## Handle the Android hardware/gesture Back button.
@@ -85,6 +105,9 @@ func _show(screen: Screen) -> void:
 
 	if screen == Screen.PAUSED:
 		_refresh_stats()
+		# Focus so the panel is operable by gamepad and keyboard, not only by
+		# touch — `ui_accept` then activates whichever button is focused.
+		resume_button.grab_focus()
 		AudioDirector.play_sfx("ui_select", -6.0)
 	elif screen == Screen.MAP:
 		_refresh_map()
@@ -125,10 +148,18 @@ func _dismiss_hint() -> String:
 	return "ESC resume    TAB map"
 
 
+## Same reasoning for the map overlay: "TAB close" names a key a phone lacks.
+func _map_hint() -> String:
+	if DisplayServer.is_touchscreen_available():
+		return "tap  ▤  close"
+	return "TAB close"
+
+
 func _refresh_map() -> void:
 	map_title.text = RoomIndex.display_name(GameState.current_room)
 	map_view.refresh()
 	map_summary.text = map_view.exploration_summary()
+	map_hint.text = _map_hint()
 
 
 ## Close any overlay and unpause. Called by [SceneDirector] before a transition.

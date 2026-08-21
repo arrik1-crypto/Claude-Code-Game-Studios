@@ -66,7 +66,7 @@ func physics_update(delta: float) -> void:
 		Balance.field(player.move_cfg, "groundFriction", 1600.0) * delta)
 
 	# Queue the next combo step from the active phase onward.
-	if _phase != Phase.WINDUP and Input.is_action_just_pressed(&"attack"):
+	if _phase != Phase.WINDUP and player.just_pressed(&"attack"):
 		_queued_next = true
 	try_subweapon()
 

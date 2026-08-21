@@ -41,7 +41,18 @@ var gold: int = 0
 
 # -- Loadout -----------------------------------------------------------------
 
-var equipped_weapon: String = "leather_whip"
+## The weapon whose `reach` and `attack` drive the whip.
+##
+## Announced on change so the player can resize its hitbox. Without that, picking
+## up the Chain Whip did nothing until the player happened to turn around:
+## `_position_whip()` runs from `_ready` and `set_facing`, so the reward for
+## beating the boss silently kept the old, shorter reach until the next flip.
+var equipped_weapon: String = "leather_whip":
+	set(value):
+		if equipped_weapon == value:
+			return
+		equipped_weapon = value
+		EventBus.weapon_equipped.emit(value)
 var equipped_subweapon: String = ""
 var unlocked_abilities: Dictionary = {}
 

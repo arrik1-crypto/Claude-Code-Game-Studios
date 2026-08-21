@@ -25,12 +25,12 @@ const REACHABLE_INSET: float = 140.0
 
 
 func test_left_anchored_controls_do_not_move_when_the_screen_widens() -> void:
-	# The d-pad is measured from the left edge, so a wider screen must not
+	# The stick is measured from the left edge, so a wider screen must not
 	# shift it at all.
 	var inset: Vector2 = Vector2(20, 68)
 	for screen: Vector2 in [PHONE_16_9, PHONE_19_5_9, PHONE_20_9]:
 		var at: Vector2 = TouchControls.anchored_position(inset, screen, 1.0, false, false)
-		assert_eq(at.x, 20.0, "the d-pad stays %dpx from the left on a %dpx canvas"
+		assert_eq(at.x, 20.0, "the stick stays %dpx from the left on a %dpx canvas"
 			% [inset.x, screen.x])
 
 
@@ -75,19 +75,95 @@ func test_enlarging_the_controls_grows_them_inward_not_off_screen() -> void:
 
 		var left: Vector2 = TouchControls.anchored_position(
 			Vector2(20, 68), screen, factor, false, false)
-		assert_gt(left.x, 0.0, "a %.1fx d-pad stays right of the left edge" % factor)
+		assert_gt(left.x, 0.0, "a %.1fx stick stays right of the left edge" % factor)
+
+
+## Stick centre, as authored: (50, 202) on the 480x270 frame.
+const STICK_INSET: Vector2 = Vector2(50, 68)
+
+## Attack is the leftmost control of the right-hand cluster: (344, 214), with a
+## 48-unit shape, so its left edge is 24 units further left again.
+const ATTACK_INSET: Vector2 = Vector2(136, 56)
+const ATTACK_HALF_WIDTH: float = 24.0
 
 
 func test_the_two_thumb_clusters_never_collide() -> void:
-	# The d-pad must stay well clear of the action cluster at every screen width
-	# and every control scale, or a thumb press hits the wrong button.
+	# The stick must stay well clear of the action cluster at every screen width
+	# and every control scale, or a thumb press hits the wrong control. Measured
+	# edge-to-edge from real geometry, not centre-to-centre — the stick is 72
+	# units across and the buttons grew, so centres alone would hide an overlap.
 	for screen: Vector2 in [PHONE_16_9, PHONE_19_5_9, PHONE_20_9]:
 		for factor: float in [1.0, 1.5]:
-			var dpad_right_edge: Vector2 = TouchControls.anchored_position(
-				Vector2(68, 68), screen, factor, false, false)
-			var action_left_edge: Vector2 = TouchControls.anchored_position(
-				Vector2(124, 58), screen, factor, true, false)
-			var message: String = ("d-pad reaches x=%.0f and the action cluster starts "
+			var stick_centre: Vector2 = TouchControls.anchored_position(
+				STICK_INSET, screen, factor, false, false)
+			var stick_right: float = stick_centre.x + VirtualStick.BASE_RADIUS * factor
+
+			var attack_centre: Vector2 = TouchControls.anchored_position(
+				ATTACK_INSET, screen, factor, true, false)
+			var attack_left: float = attack_centre.x - ATTACK_HALF_WIDTH * factor
+
+			var message: String = ("the stick reaches x=%.0f and the action cluster starts "
 				+ "at x=%.0f on a %dpx canvas at %.1fx") % [
-					dpad_right_edge.x, action_left_edge.x, screen.x, factor]
-			assert_lt(dpad_right_edge.x, action_left_edge.x, message)
+					stick_right, attack_left, screen.x, factor]
+			assert_lt(stick_right, attack_left, message)
+
+
+# -- Physical target size -----------------------------------------------------
+#
+# The check that was missing. The GDD has the right formula in section 4 but only
+# ever applied it to the *largest* button, and against a 7 mm bar rather than the
+# ~9 mm / 48 dp standard. Eight of the ten controls were under it, including
+# every movement input, and nothing failed — it took playing on a phone to find.
+
+## Canvas units are multiplied by (screen_height / 270) to reach physical pixels.
+const PHONE_HEIGHT_PX: float = 1080.0
+const REFERENCE_HEIGHT: float = 270.0
+
+## A typical modern handset. Roughly 15.75 physical pixels per millimetre.
+const PHONE_PPI: float = 400.0
+const MM_PER_INCH: float = 25.4
+
+## The accessibility floor for a touch target that is held or tapped in action.
+const MIN_TARGET_MM: float = 9.0
+
+
+## Convert a control's authored size in canvas units to millimetres on a phone.
+static func _canvas_units_to_mm(units: float) -> float:
+	var physical_px: float = units * (PHONE_HEIGHT_PX / REFERENCE_HEIGHT)
+	return physical_px / PHONE_PPI * MM_PER_INCH
+
+
+func test_the_size_conversion_matches_the_gdd_formula() -> void:
+	# Sanity-check the maths itself before trusting the assertions built on it.
+	# 40 canvas units -> 160 physical px at 4x -> ~10.2 mm at 400 ppi.
+	assert_almost_eq(_canvas_units_to_mm(40.0), 10.16, 0.05,
+		"40 canvas units is about 10.2 mm on a 1080p 400 ppi phone")
+
+
+func test_every_touch_target_clears_the_minimum_size() -> void:
+	# Authored sizes from touch_controls.tscn. Kept here as data rather than read
+	# from the scene so the test states the intended contract outright.
+	var targets: Dictionary[String, float] = {
+		"BtnJump": 48.0,
+		"BtnAttack": 48.0,
+		"BtnDash": 40.0,
+		"BtnSubweapon": 40.0,
+		"BtnPause": 40.0,
+		"BtnMap": 40.0,
+	}
+	for name: String in targets:
+		var mm: float = _canvas_units_to_mm(targets[name])
+		var message: String = "%s is %.1f mm on a 1080p phone; the minimum is %.1f mm" % [
+			name, mm, MIN_TARGET_MM]
+		assert_ge(mm, MIN_TARGET_MM, message)
+
+
+func test_the_movement_stick_is_a_large_continuous_target() -> void:
+	# The stick replaced a 24-unit arrow (6.1 mm) that also had a dead centre.
+	# Its diameter is what the thumb actually gets.
+	var diameter: float = VirtualStick.BASE_RADIUS * 2.0
+	var mm: float = _canvas_units_to_mm(diameter)
+	var message: String = "the movement stick is %.1f mm across; it must clear %.1f mm" % [
+		mm, MIN_TARGET_MM]
+	assert_ge(mm, MIN_TARGET_MM, message)
+	assert_gt(mm, 15.0, "movement is held continuously and should be generous")

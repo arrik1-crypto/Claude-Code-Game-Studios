@@ -22,7 +22,7 @@ radius = 7.0
 height = 44.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_whip"]
-size = Vector2(44, 26)
+size = Vector2(54, 26)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 28.0
@@ -65,7 +65,7 @@ knockback_horizontal = 130.0
 knockback_vertical = 60.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WhipHitbox"]
-position = Vector2(28, -26)
+position = Vector2(35, -26)
 shape = SubResource("RectangleShape2D_whip")
 
 [node name="PickupCollector" type="Area2D" parent="."]

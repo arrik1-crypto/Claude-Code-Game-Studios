@@ -12,6 +12,13 @@ extends Control
 
 
 func _ready() -> void:
+	# Every other always-on screen in the game declares this; this one inherited
+	# PAUSABLE and worked only because SceneDirector happens to unpause on the
+	# line before it swaps the scene in. Reorder those two statements and the
+	# Retry button silently stops responding — on the one screen the player
+	# absolutely must be able to press.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	AudioDirector.stop_music(false)
 
 	var has_respawn: bool = GameState.respawn_room != ""

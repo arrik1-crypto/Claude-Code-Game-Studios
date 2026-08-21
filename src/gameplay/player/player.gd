@@ -95,6 +95,7 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	hurtbox.hit_taken.connect(_on_hit_taken)
 	pickup_collector.area_entered.connect(_on_pickup_area_entered)
+	EventBus.weapon_equipped.connect(_on_weapon_equipped)
 
 	# Announce initial values so a freshly built HUD is correct without polling.
 	EventBus.player_health_changed.emit(GameState.current_hp, GameState.max_hp)
@@ -117,8 +118,14 @@ func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
 	_regenerate_mp(delta)
 
-	if _control_enabled:
-		state_machine.physics_update(delta)
+	# The state machine runs unconditionally. It used to be gated on
+	# `_control_enabled`, which froze the game on death: `_on_died` clears that
+	# flag and then *queues* the Dead transition, but the queue is only drained
+	# from inside `physics_update` — so Dead was never entered, and
+	# `SceneDirector.game_over()`, which only DeadState calls, was unreachable.
+	# Control is about whether the player may *act*; states still have to tick so
+	# gravity, timers and the death hand-off keep working.
+	state_machine.physics_update(delta)
 
 	if not is_on_floor():
 		_last_fall_speed = maxf(0.0, velocity.y)
@@ -176,8 +183,28 @@ func _add_lantern() -> void:
 
 
 ## Horizontal input axis in -1..1.
+##
+## Analog-aware: the touch stick presses the move actions with a strength, so
+## this returns a partial value for a partial tilt. A keyboard or d-pad presses
+## at full strength and returns +/-1.
 func move_axis() -> float:
+	if not _control_enabled:
+		return 0.0
 	return Input.get_axis(&"move_left", &"move_right")
+
+
+## True while [param action] is held AND the player is allowed to act.
+##
+## Every state reads input through this and [method just_pressed] rather than
+## touching [Input] directly, so disabling control silently disables input
+## everywhere instead of each state having to remember to check.
+func wants(action: StringName) -> bool:
+	return _control_enabled and Input.is_action_pressed(action)
+
+
+## True on the frame [param action] is pressed, if the player is allowed to act.
+func just_pressed(action: StringName) -> bool:
+	return _control_enabled and Input.is_action_just_pressed(action)
 
 
 ## Apply gravity, clamped to terminal velocity.
@@ -403,7 +430,10 @@ func _on_died() -> void:
 	whip_hitbox.deactivate()
 	hurtbox.active = false
 	EventBus.player_died.emit()
-	state_machine.transition_to(&"Dead", {})
+	# Immediate, not queued. A queued transition is applied only after the
+	# current state's next update, and that update gets to overwrite it first —
+	# Idle would see no floor under the corpse and replace Dead with Fall.
+	state_machine.transition_now(&"Dead", {})
 
 
 func is_invulnerable() -> bool:
@@ -504,6 +534,15 @@ func tick_run_dust(delta: float, interval: float = 26.0) -> void:
 		return
 	_run_dust_accumulator = 0.0
 	Vfx.run_dust(effect_host(), feet_position(), facing)
+
+
+## Resize the whip the moment a new weapon is equipped.
+##
+## `_position_whip()` otherwise only runs on ready and on turning around, so a
+## newly-collected Chain Whip swung with the old weapon's reach until the player
+## next changed direction.
+func _on_weapon_equipped(_weapon_id: String) -> void:
+	_position_whip()
 
 
 ## Disable input, e.g. during a room transition or a boss intro.
